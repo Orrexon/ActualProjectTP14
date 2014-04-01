@@ -2,6 +2,9 @@
 
 #include "GameState.h"
 
+class Player;
+class HotSpot;
+
 class PlayState : public GameState
 {
 public:
@@ -14,5 +17,10 @@ public:
 	virtual void releaving();
 	virtual bool update(float dt);
 	virtual void draw();
+
+	void initManyMouse();
+private:
+	std::vector<Player*> m_players;
+	HotSpot* m_hotSpot;
 };
 

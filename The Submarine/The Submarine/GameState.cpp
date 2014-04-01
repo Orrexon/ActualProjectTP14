@@ -11,7 +11,6 @@ void GameState::setAssets(StateAsset* p_stateAsset)
 	m_stateAsset = p_stateAsset;
 }
 
-
 bool GameState::isExclusive()
 {
 	return m_exclusive;

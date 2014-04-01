@@ -82,20 +82,36 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Defender.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="GameState.cpp" />
     <ClCompile Include="GameStateManager.cpp" />
+    <ClCompile Include="Gatherer.cpp" />
+    <ClCompile Include="HotSpot.cpp" />
+    <ClCompile Include="linux_evdev.c" />
+    <ClCompile Include="macosx_hidmanager.c" />
+    <ClCompile Include="macosx_hidutilities.c" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="manymouse.c" />
     <ClCompile Include="MenuState.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayState.cpp" />
     <ClCompile Include="WindowManager.cpp" />
+    <ClCompile Include="windows_wminput.c" />
+    <ClCompile Include="x11_xinput2.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Defender.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="GameState.h" />
     <ClInclude Include="GameStateManager.h" />
+    <ClInclude Include="Gatherer.h" />
+    <ClInclude Include="HotSpot.h" />
+    <ClInclude Include="manymouse.hpp" />
     <ClInclude Include="MenuState.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="PlayState.h" />
+    <ClInclude Include="raw_input.h" />
     <ClInclude Include="WindowManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
