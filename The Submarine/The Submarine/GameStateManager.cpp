@@ -44,6 +44,7 @@ void GameStateManager::pushState(GameState* gameState)
 {
 	gameState->setAssets(m_stateAsset);
 	gameState->m_actionMap = new thor::ActionMap<std::string>();
+	gameState->setupActions();
 	m_activeStates.push_back(gameState);
 
 	notifyObscuredStates();

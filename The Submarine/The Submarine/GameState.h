@@ -21,6 +21,7 @@ public:
 	virtual void releaving() = 0;
 	virtual bool update(float dt) = 0;
 	virtual void draw() = 0;
+	virtual void setupActions() = 0;
 	void setAssets(StateAsset* p_stateAsset);
 	
 	thor::ActionMap<std::string>* getActionMap();

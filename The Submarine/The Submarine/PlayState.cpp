@@ -21,18 +21,11 @@ PlayState::~PlayState()
 
 void PlayState::entering()
 {
+	m_activePlayers = 0;
 	m_exclusive = false;
-	m_actionMap->operator[]("Move_Up") = thor::Action(sf::Keyboard::W, thor::Action::Hold);
-	m_actionMap->operator[]("Move_Down") = thor::Action(sf::Keyboard::S, thor::Action::Hold);
-	m_actionMap->operator[]("Move_Left") = thor::Action(sf::Keyboard::A, thor::Action::Hold);
-	m_actionMap->operator[]("Move_Right") = thor::Action(sf::Keyboard::D, thor::Action::Hold);
-
+	
 	initManyMouse();
-
-	m_players.push_back(new Player(PLAYER_1));
-	m_players.push_back(new Player(PLAYER_2));
-	m_players.push_back(new Player(PLAYER_3));
-	m_players.push_back(new Player(PLAYER_4));
+	initPlayers();
 
 	m_hotSpot = new HotSpot();
 	std::cout << "Entering play state" << std::endl;
@@ -90,6 +83,29 @@ void PlayState::initManyMouse()
 
 	for (int i = 0; i < numDevices; i++)
 	{
-		std::cout << "Mouse" << i << ": " << ManyMouse_DeviceName(i) << std::endl;
+		std::string name = ManyMouse_DeviceName(i);
+		if (name.find("Pad") != std::string::npos)
+		{
+			m_activePlayers++;
+			std::cout << "Maybe a touchpad was found. I am ignoring it for you" << std::endl;
+			continue;
+		}
 	}
+	std::cout << "Active mouse devices " << m_activePlayers << std::endl;
+}
+
+void PlayState::initPlayers()
+{
+	m_players.push_back(new Player(PLAYER_1));
+	m_players.push_back(new Player(PLAYER_2));
+	m_players.push_back(new Player(PLAYER_3));
+	m_players.push_back(new Player(PLAYER_4));
+}
+
+void PlayState::setupActions()
+{
+	m_actionMap->operator[]("Move_Up") = thor::Action(sf::Keyboard::W, thor::Action::Hold);
+	m_actionMap->operator[]("Move_Down") = thor::Action(sf::Keyboard::S, thor::Action::Hold);
+	m_actionMap->operator[]("Move_Left") = thor::Action(sf::Keyboard::A, thor::Action::Hold);
+	m_actionMap->operator[]("Move_Right") = thor::Action(sf::Keyboard::D, thor::Action::Hold);
 }

@@ -11,15 +11,18 @@ public:
 	PlayState();
 	~PlayState();
 
-	virtual void entering();
-	virtual void leaving();
-	virtual void obscuring();
-	virtual void releaving();
-	virtual bool update(float dt);
-	virtual void draw();
+	void entering();
+	void leaving();
+	void obscuring();
+	void releaving();
+	bool update(float dt);
+	void draw();
+	void setupActions();
 
 	void initManyMouse();
+	void initPlayers();
 private:
+	uint8_t m_activePlayers;
 	std::vector<Player*> m_players;
 	HotSpot* m_hotSpot;
 };

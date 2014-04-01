@@ -8,11 +8,12 @@ public:
 	MenuState();
 	~MenuState();
 
-	virtual void entering();
-	virtual void leaving();
-	virtual void obscuring();
-	virtual void releaving();
-	virtual bool update(float dt);
-	virtual void draw();
+	void entering();
+	void leaving();
+	void obscuring();
+	void releaving();
+	bool update(float dt);
+	void draw();
+	void setupActions();
 };
 
