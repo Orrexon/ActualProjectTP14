@@ -1,5 +1,6 @@
 #include <Thor\Input.hpp>
 #include <SFML\Graphics.hpp>
+#include <iostream>
 
 #include "GameStateManager.h"
 #include "WindowManager.h"
@@ -129,6 +130,10 @@ void GameStateManager::pushEvents(sf::Event event)
 	for (auto &state : m_activeStates)
 	{
 		sf::Event localEvent = event;
+		if (localEvent.type == sf::Event::MenuItemSelected)
+		{
+			std::cout << "Menu selected event triggered" << std::endl;
+		}
 		state->getActionMap()->pushEvent(localEvent);
 	}
 }

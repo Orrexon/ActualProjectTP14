@@ -24,8 +24,10 @@ public:
 	void openFile();
 	void saveFile();
 	void newFile();
+	void handleMenuSelected(thor::ActionContext<std::string> context);
 
 private:
 	Json::Value* m_jsonRoot;
+	thor::ActionMap<std::string>::CallbackSystem* m_system;
 };
 

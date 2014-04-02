@@ -1,11 +1,18 @@
 #include <SFML\Graphics\Image.hpp>
 #include <SFML\Graphics\RenderWindow.hpp>
-#include <Windows.h>
-
+#include <windows.h>
+#include <shellapi.h>
+#include <commdlg.h>
+#include <shlobj.h>
+#include <iostream>
+#include <algorithm>
+#include <thread>
+#include "System.hpp"
 #include "WindowManager.h"
 
 WindowManager::WindowManager(std::string p_title)
 {
+	m_postFocus = false;
 	m_window = new sf::RenderWindow(sf::VideoMode(800, 600), p_title);
 	m_window->setVerticalSyncEnabled(true);
 	m_window->setKeyRepeatEnabled(false);
@@ -32,49 +39,46 @@ sf::RenderWindow* WindowManager::getWindow()
 
 std::string WindowManager::browseFile(std::string title)
 {
-	char buf[MAX_PATH];
-	GetCurrentDirectoryA(MAX_PATH, buf);
+	auto filename = CreateZeroed<TCHAR, 65536>();
+	auto open_filename = CreateZeroed<OPENFILENAMEW>();
 
-	OPENFILENAMEA ofn;
-	char szFile[255];
-	ZeroMemory(&ofn, sizeof(ofn));
-	ofn.lStructSize = sizeof (ofn);
-	ofn.hwndOwner = m_window->getSystemHandle();
-	ofn.lpstrFile = szFile;
-	ofn.lpstrFile[0] = '\0';
-	ofn.nMaxFile = sizeof(szFile);
-	ofn.lpstrFilter = ".png (SWAG)\0*.png*\0\0";
-	ofn.nFilterIndex = 1;
-	ofn.lpstrFileTitle = NULL;
-	ofn.nMaxFileTitle = 0;
-	ofn.lpstrTitle = title.c_str();
-	ofn.lpstrInitialDir = buf;
-	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-	GetOpenFileNameA(&ofn);
-	return szFile;
+	open_filename.lStructSize = sizeof(OPENFILENAMEW);
+	open_filename.lpstrFilter = L"All files\0.*\0";
+	open_filename.lpstrFile = filename.data();
+	open_filename.nMaxFile = filename.size();
+	open_filename.lpstrTitle = L"Title";
+	open_filename.hwndOwner = m_window->getSystemHandle();
+	open_filename.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
+
+	auto result = GetOpenFileNameW(&open_filename);
+
+	if (!result)
+	{
+		return "";
+	}
+	return std::string(std::begin(filename), std::end(filename));
 }
 
 std::string WindowManager::saveFile(std::string title)
 {
-	char buf[MAX_PATH];
-	GetCurrentDirectoryA(MAX_PATH, buf);
+	auto filename = CreateZeroed<TCHAR, 65536>();
+	auto open_filename = CreateZeroed<OPENFILENAMEW>();
 
-	OPENFILENAMEA ofn;
-	char szFile[255];
-	ZeroMemory(&ofn, sizeof(ofn));
-	ofn.lStructSize = sizeof (ofn);
-	ofn.hwndOwner = m_window->getSystemHandle();
-	ofn.lpstrFile = szFile;
-	ofn.lpstrFile[0] = '\0';
-	ofn.nMaxFile = sizeof(szFile);
-	ofn.nFilterIndex = 1;
-	ofn.lpstrFileTitle = NULL;
-	ofn.nMaxFileTitle = 0;
-	ofn.lpstrTitle = title.c_str();
-	ofn.lpstrInitialDir = buf;
-	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-	GetSaveFileNameA(&ofn);
-	return szFile;
+	open_filename.lStructSize = sizeof(OPENFILENAMEW);
+	open_filename.lpstrFilter = L"All files\0.*\0";
+	open_filename.lpstrFile = filename.data();
+	open_filename.nMaxFile = filename.size();
+	open_filename.lpstrTitle = L"Title";
+	open_filename.hwndOwner = m_window->getSystemHandle();
+	open_filename.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
+
+	auto result = GetOpenFileNameW(&open_filename);
+	
+	if (!result)
+	{
+		return "";
+	}
+	return std::string(std::begin(filename), std::end(filename));
 }
 
 void WindowManager::setMenu(HMENU menu)
@@ -90,4 +94,14 @@ void WindowManager::setFocus(bool p_value)
 bool WindowManager::isInFocus()
 {
 	return m_inFocus;
+}
+
+bool WindowManager::postFocus()
+{
+	return m_postFocus;
+}
+
+void WindowManager::setPostFocus(bool p_value)
+{
+	m_postFocus = p_value;
 }

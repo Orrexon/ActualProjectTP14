@@ -41,6 +41,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -57,8 +58,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>sfml-window-d.lib;sfml-graphics-d.lib;sfml-network-d.lib;sfml-audio-d.lib;sfml-system-d.lib;thor-d.lib;Box2D-d.lib;opengl32.lib;glu32.lib;jsoncppd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../deps/Thor/lib;..\deps\SFML-2.1\lib\;../deps/Box2D/lib/;../deps/jsoncpp/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>thor-d.lib;Box2D-d.lib;opengl32.lib;glu32.lib;jsoncppd.lib;sfml-window-d.lib;sfml-graphics-d.lib;sfml-network-d.lib;sfml-audio-d.lib;sfml-system-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\deps\SFML-2.1\lib\;../deps/Thor/lib;../deps/Box2D/lib/;../deps/jsoncpp/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -77,8 +78,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>../deps/Thor/lib;..\deps\SFML-2.1\lib\;../deps/Box2D/lib/;../deps/jsoncpp/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>sfml-window.lib;sfml-graphics.lib;sfml-network.lib;sfml-audio.lib;sfml-system.lib;thor.lib;Box2D.lib;opengl32.lib;glu32.lib;jsoncpp.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\deps\SFML-2.1\lib\;../deps/Thor/lib;../deps/Box2D/lib/;../deps/jsoncpp/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>sfml-window.lib;sfml-graphics.lib;sfml-network.lib;sfml-audio.lib;sfml-system.lib;thor.lib;Box2D.lib;opengl32.lib;glu32.lib;jsoncpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -97,6 +98,7 @@
     <ClCompile Include="MenuState.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayState.cpp" />
+    <ClCompile Include="System.cpp" />
     <ClCompile Include="WindowManager.cpp" />
     <ClCompile Include="windows_wminput.c" />
     <ClCompile Include="x11_xinput2.c" />
@@ -114,7 +116,11 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayState.h" />
     <ClInclude Include="raw_input.h" />
+    <ClInclude Include="System.hpp" />
     <ClInclude Include="WindowManager.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="System.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -47,12 +47,13 @@ void Engine::loop()
 		updateDeltaTime();
 		updateEvents();
 		
-		if (m_actionMap->isActive("lost_focus"))
+		if (m_actionMap->isActive("lost_focus") && !m_windowManager->postFocus())
 		{
 			m_windowManager->setFocus(false);
 		}
 		else if (m_actionMap->isActive("gained_focus"))
 		{
+			m_windowManager->setPostFocus(false);
 			m_windowManager->setFocus(true);
 		}
 

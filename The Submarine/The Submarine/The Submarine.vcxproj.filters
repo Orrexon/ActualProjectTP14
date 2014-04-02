@@ -45,6 +45,7 @@
     <ClCompile Include="LevelEditorState.cpp">
       <Filter>GameStates</Filter>
     </ClCompile>
+    <ClCompile Include="System.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h" />
@@ -78,6 +79,7 @@
     <ClInclude Include="LevelEditorState.h">
       <Filter>GameStates</Filter>
     </ClInclude>
+    <ClInclude Include="System.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="GameStates">
@@ -89,5 +91,8 @@
     <Filter Include="ManyMouse">
       <UniqueIdentifier>{903c350b-1f49-4db5-9a33-88c128b4df7e}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="System.inl" />
   </ItemGroup>
 </Project>
