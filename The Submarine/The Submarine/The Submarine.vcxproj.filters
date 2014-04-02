@@ -42,6 +42,9 @@
     <ClCompile Include="x11_xinput2.c">
       <Filter>ManyMouse</Filter>
     </ClCompile>
+    <ClCompile Include="LevelEditorState.cpp">
+      <Filter>GameStates</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h" />
@@ -71,6 +74,9 @@
     </ClInclude>
     <ClInclude Include="raw_input.h">
       <Filter>ManyMouse</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelEditorState.h">
+      <Filter>GameStates</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

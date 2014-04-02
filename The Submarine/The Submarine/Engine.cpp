@@ -37,7 +37,6 @@ bool Engine::init(std::string p_title)
 
 	m_gameStateManager->getStateAsset()->windowManager = m_windowManager;
 	m_gameStateManager->getStateAsset()->actionMap = m_actionMap;
-
 	return true;
 }
 

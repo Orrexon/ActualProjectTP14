@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <Windows.h>
 
 namespace sf
 {
@@ -16,6 +17,9 @@ public:
 	void setWindowIcon(std::string p_filepath);
 	sf::RenderWindow* getWindow();
 
+	void setMenu(HMENU menu);
+	std::string browseFile(std::string title = "");
+	std::string saveFile(std::string title = "");
 	void setFocus(bool p_value);
 	bool isInFocus();
 

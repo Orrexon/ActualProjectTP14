@@ -7,6 +7,7 @@
 #include "GameStateManager.h"
 #include "WindowManager.h"
 #include "PlayState.h"
+#include "LevelEditorState.h"
 
 MenuState::MenuState()
 {
@@ -22,6 +23,8 @@ void MenuState::entering()
 {
 	m_exclusive = false;
 	std::cout << "Entering menu state" << std::endl;
+	std::cout << "W - Play Game" << std::endl;
+	std::cout << "S - Level editor" << std::endl;
 }
 
 void MenuState::leaving()
@@ -44,6 +47,10 @@ bool MenuState::update(float dt)
 	if (getActionMap()->isActive("Move_Up"))
 	{
 		m_stateAsset->gameStateManager->changeState(new PlayState());
+	}
+	else if (getActionMap()->isActive("Move_Down"))
+	{
+		m_stateAsset->gameStateManager->changeState(new LevelEditorState());
 	}
 	return true;
 }
