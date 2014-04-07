@@ -2,12 +2,24 @@
 
 #include <string>
 #include <array>
+#include <map>
 #include <Windows.h>
 
 namespace sf
 {
 	class RenderWindow;
 }
+
+
+struct OPENFILEINFO
+{
+	OPENFILEINFO() {
+		flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
+	}
+	
+	std::string caption;
+	int flags;
+};
 
 class WindowManager
 {
@@ -19,7 +31,7 @@ public:
 	sf::RenderWindow* getWindow();
 
 	void setMenu(HMENU menu);
-	std::string browseFile(std::string title = "");
+	std::string browseFile(OPENFILEINFO &ofi);
 	std::string saveFile(std::string title = "");
 	void setFocus(bool p_value);
 	bool isInFocus();

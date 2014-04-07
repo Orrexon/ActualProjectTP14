@@ -12,8 +12,10 @@
 
 WindowManager::WindowManager(std::string p_title)
 {
+	sf::ContextSettings settings;
+	settings.antialiasingLevel = 0;
 	m_postFocus = false;
-	m_window = new sf::RenderWindow(sf::VideoMode(800, 600), p_title);
+	m_window = new sf::RenderWindow(sf::VideoMode(800, 600), p_title, sf::Style::None, settings);
 	m_window->setVerticalSyncEnabled(true);
 	m_window->setKeyRepeatEnabled(false);
 }
@@ -37,20 +39,20 @@ sf::RenderWindow* WindowManager::getWindow()
 	return m_window;
 }
 
-std::string WindowManager::browseFile(std::string title)
+std::string WindowManager::browseFile(OPENFILEINFO &ofi)
 {
-	auto filename = CreateZeroed<TCHAR, 65536>();
-	auto open_filename = CreateZeroed<OPENFILENAMEW>();
+	auto filename = CreateZeroed<CHAR, 65536>();
+	auto open_filename = CreateZeroed<OPENFILENAMEA>();
 
-	open_filename.lStructSize = sizeof(OPENFILENAMEW);
-	open_filename.lpstrFilter = L"All files\0.*\0";
+	open_filename.lStructSize = sizeof(OPENFILENAMEA);
+	open_filename.lpstrFilter = "All files(*.*)\0*.*\0";
 	open_filename.lpstrFile = filename.data();
 	open_filename.nMaxFile = filename.size();
-	open_filename.lpstrTitle = L"Title";
+	open_filename.lpstrTitle = ofi.caption.c_str();
 	open_filename.hwndOwner = m_window->getSystemHandle();
-	open_filename.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
+	open_filename.Flags = ofi.flags;
 
-	auto result = GetOpenFileNameW(&open_filename);
+	auto result = GetOpenFileNameA(&open_filename);
 
 	if (!result)
 	{
@@ -65,14 +67,14 @@ std::string WindowManager::saveFile(std::string title)
 	auto open_filename = CreateZeroed<OPENFILENAMEW>();
 
 	open_filename.lStructSize = sizeof(OPENFILENAMEW);
-	open_filename.lpstrFilter = L"All files\0.*\0";
+	open_filename.lpstrFilter = L"Din mamma filer\0*.*\0";
 	open_filename.lpstrFile = filename.data();
 	open_filename.nMaxFile = filename.size();
-	open_filename.lpstrTitle = L"Title";
+	open_filename.lpstrTitle = L"Your mom";
 	open_filename.hwndOwner = m_window->getSystemHandle();
 	open_filename.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
 
-	auto result = GetOpenFileNameW(&open_filename);
+	auto result = GetSaveFileNameW(&open_filename);
 	
 	if (!result)
 	{

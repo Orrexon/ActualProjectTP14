@@ -95,6 +95,7 @@
     <ClCompile Include="macosx_hidutilities.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="manymouse.c" />
+    <ClCompile Include="Math.cpp" />
     <ClCompile Include="MenuState.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayState.cpp" />
@@ -112,17 +113,33 @@
     <ClInclude Include="HotSpot.h" />
     <ClInclude Include="LevelEditorState.h" />
     <ClInclude Include="manymouse.hpp" />
+    <ClInclude Include="Math.h" />
     <ClInclude Include="MenuState.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayState.h" />
     <ClInclude Include="raw_input.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="System.hpp" />
     <ClInclude Include="WindowManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="System.inl" />
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="The Submarine.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\resources\p1_icon.bmp" />
+    <Image Include="..\resources\p2_icon.bmp" />
+    <Image Include="..\resources\p3_icon.bmp" />
+    <Image Include="..\resources\p4_icon.bmp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="The Submarine.rc" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

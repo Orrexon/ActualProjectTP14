@@ -46,6 +46,7 @@
       <Filter>GameStates</Filter>
     </ClCompile>
     <ClCompile Include="System.cpp" />
+    <ClCompile Include="Math.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h" />
@@ -80,6 +81,8 @@
       <Filter>GameStates</Filter>
     </ClInclude>
     <ClInclude Include="System.hpp" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="Math.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="GameStates">
@@ -91,8 +94,28 @@
     <Filter Include="ManyMouse">
       <UniqueIdentifier>{903c350b-1f49-4db5-9a33-88c128b4df7e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{9c408ea7-a14a-4987-975a-cb4dacd2004c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="System.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="The Submarine.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\resources\p1_icon.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\resources\p4_icon.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\resources\p3_icon.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\resources\p2_icon.bmp">
+      <Filter>Resources</Filter>
+    </Image>
   </ItemGroup>
 </Project>
