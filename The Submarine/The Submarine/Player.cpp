@@ -1,6 +1,7 @@
 #include "Player.h"
 #include "Gatherer.h"
 #include "Defender.h"
+#include <iostream>
 
 Player::Player(PlayerEnum p_identifier)
 {
@@ -22,7 +23,7 @@ Player::~Player()
 
 void Player::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
-
+	std::cout << "BAJS" << std::endl;
 }
 
 void Player::setDevice(unsigned int p_deviceNo)
