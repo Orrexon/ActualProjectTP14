@@ -30,8 +30,8 @@ public:
 private:
 	WindowManager* m_windowManager;
 	GameStateManager* m_gameStateManager;
+
 	thor::ActionMap<std::string>* m_actionMap;
 
 	bool m_running;
 };
-
