@@ -76,9 +76,10 @@ struct Player
 		timer.stop();
 	}
 	thor::StopWatch timer;
-	sf::CircleShape shape;
+	sf::CircleShape defender;
 	sf::CircleShape gatherer;
-	b2Body* body;
+	b2Body* defender_body;
+	b2Body* gatherer_body;
 	Audiosystem* m_audioSystem;
 };
 
@@ -191,10 +192,10 @@ int main(int argc, char *argv[])
 	WorldContactListener myContactListener;
 	world->SetContactListener(&myContactListener);
 
-	createWall(world, sf::Vector2f(50, 50), sf::Vector2f(1870, 50));
-	createWall(world, sf::Vector2f(1870, 50), sf::Vector2f(1870, 1030));
-	createWall(world, sf::Vector2f(1870, 1030), sf::Vector2f(50, 1030));
-	createWall(world, sf::Vector2f(50, 1030), sf::Vector2f(50, 50));
+	createWall(world, sf::Vector2f(0, 0), sf::Vector2f(1920, 0));
+	createWall(world, sf::Vector2f(1920, 0), sf::Vector2f(1920, 1080));
+	createWall(world, sf::Vector2f(1920, 1080), sf::Vector2f(0, 1080));
+	createWall(world, sf::Vector2f(0, 1080), sf::Vector2f(0, 0));
 
 	sf::CircleShape innerCircle;
 	innerCircle.setRadius(200);
@@ -202,39 +203,78 @@ int main(int argc, char *argv[])
 	innerCircle.setOrigin(200,200);
 	innerCircle.setPosition(sf::Vector2f(1920 / 2, 1080 / 2));
 
+
+	std::vector<sf::Vector2f> defenderPositions;
+	std::vector<sf::Vector2f> gathererPositions;
+
+	defenderPositions.emplace_back(100, 100);
+	defenderPositions.emplace_back(1820, 100);
+	defenderPositions.emplace_back(1820, 980);
+	defenderPositions.emplace_back(100, 980);
+
+	gathererPositions.emplace_back(50, 50);
+	gathererPositions.emplace_back(1870, 50);
+	gathererPositions.emplace_back(1870, 1030);
+	gathererPositions.emplace_back(50, 1030);
+
 	// create player
 	std::vector<Player*> players;
 	for (int i = 0; i < numDevices; i++)
 	{
 		Player* player = new Player();
 		player->m_audioSystem = audioSystem;
-		player->shape.setFillColor(sf::Color::Green);
-		player->shape.setRadius(30.f);
-		player->shape.setOrigin(30.f, 30.f);
-		player->shape.setPosition(sf::Vector2f(thor::random(300.f, 600.f), thor::random(300.f, 600.f)));
+		player->defender.setFillColor(sf::Color::Green);
+		player->defender.setRadius(30.f);
+		player->defender.setOrigin(30.f, 30.f);
+		player->defender.setPosition(defenderPositions[i]);
 
-		// Create gatherer
+		player->gatherer.setFillColor(sf::Color::Green);
+		player->gatherer.setRadius(15.f);
+		player->gatherer.setOrigin(15.f, 15.f);
+		player->gatherer.setPosition(gathererPositions[i]);
 
-		// The body
-		b2BodyDef bodyDef;
-		bodyDef.position = gameToPhysicsUnits(player->shape.getPosition());
-		bodyDef.type = b2_dynamicBody;
-		bodyDef.linearDamping = 0.3f;
-		bodyDef.userData = player;
-		b2Body* body = world->CreateBody(&bodyDef);
+		// Defender body
+		{
+			b2BodyDef bodyDef;
+			bodyDef.position = gameToPhysicsUnits(player->defender.getPosition());
+			bodyDef.type = b2_dynamicBody;
+			bodyDef.linearDamping = 0.3f;
+			bodyDef.userData = player;
+			b2Body* body = world->CreateBody(&bodyDef);
 
-		// The shape
-		b2CircleShape shape;
-		shape.m_radius = gameToPhysicsUnits(player->shape.getRadius());
+			b2CircleShape shape;
+			shape.m_radius = gameToPhysicsUnits(player->defender.getRadius());
 
-		// The fixture
-		b2FixtureDef fixtureDef;
-		fixtureDef.density = 1;
-		fixtureDef.shape = &shape;
-		fixtureDef.friction = 0.3f;
-		fixtureDef.restitution = 0.6;
-		body->CreateFixture(&fixtureDef);
-		player->body = body;
+			b2FixtureDef fixtureDef;
+			fixtureDef.density = 1;
+			fixtureDef.shape = &shape;
+			fixtureDef.friction = 0.3f;
+			fixtureDef.restitution = 0.6;
+			body->CreateFixture(&fixtureDef);
+			player->defender_body = body;
+		}
+		
+		// Gatherer body
+		{
+			b2BodyDef bodyDef;
+			bodyDef.position = gameToPhysicsUnits(player->gatherer.getPosition());
+			bodyDef.type = b2_dynamicBody;
+			bodyDef.linearDamping = 0.3f;
+			bodyDef.userData = player;
+			b2Body* body = world->CreateBody(&bodyDef);
+
+			b2CircleShape shape;
+			shape.m_radius = gameToPhysicsUnits(player->gatherer.getRadius());
+
+			b2FixtureDef fixtureDef;
+			fixtureDef.density = 1;
+			fixtureDef.shape = &shape;
+			fixtureDef.friction = 0.3f;
+			fixtureDef.restitution = 0.6;
+			body->CreateFixture(&fixtureDef);
+			player->gatherer_body = body;
+		}
+
 		players.push_back(player);
 	}
 
@@ -251,6 +291,16 @@ int main(int argc, char *argv[])
 	thor::ActionMap<std::string> actionMap;
 	actionMap["test"] = thor::Action(sf::Keyboard::X, thor::Action::PressOnce);
 	actionMap["test2"] = thor::Action(sf::Mouse::Left, thor::Action::PressOnce);
+
+	actionMap["p1_up"] = thor::Action(sf::Keyboard::W, thor::Action::Hold);
+	actionMap["p1_down"] = thor::Action(sf::Keyboard::S, thor::Action::Hold);
+	actionMap["p1_left"] = thor::Action(sf::Keyboard::A, thor::Action::Hold);
+	actionMap["p1_right"] = thor::Action(sf::Keyboard::D, thor::Action::Hold);
+
+	actionMap["p2_up"] = thor::Action(sf::Keyboard::Up, thor::Action::Hold);
+	actionMap["p2_down"] = thor::Action(sf::Keyboard::Down, thor::Action::Hold);
+	actionMap["p2_left"] = thor::Action(sf::Keyboard::Left, thor::Action::Hold);
+	actionMap["p2_right"] = thor::Action(sf::Keyboard::Right, thor::Action::Hold);
 
 	thor::ActionMap<std::string> actionMap2;
 	actionMap2["test3"] = thor::Action(sf::Mouse::Left, thor::Action::PressOnce);
@@ -269,33 +319,109 @@ int main(int argc, char *argv[])
 
 			if (event.type == MANYMOUSE_EVENT_RELMOTION)
 			{
-				sf::Vector2f playerPosition = player->shape.getPosition();
+				sf::Vector2f playerPosition = player->defender.getPosition();
 				if (event.item == 0)
 				{
-					player->body->ApplyLinearImpulse(b2Vec2(10.f * gameToPhysicsUnits(static_cast<float>(event.value)), 0.f), player->body->GetWorldCenter(), true);
+					player->defender_body->ApplyLinearImpulse(b2Vec2(10.f * gameToPhysicsUnits(static_cast<float>(event.value)), 0.f), player->defender_body->GetWorldCenter(), true);
 				}
 				if (event.item == 1)
 				{
-					player->body->ApplyLinearImpulse(b2Vec2(0.f, 10.f * gameToPhysicsUnits(static_cast<float>(event.value))), player->body->GetWorldCenter(), true);
+					player->defender_body->ApplyLinearImpulse(b2Vec2(0.f, 10.f * gameToPhysicsUnits(static_cast<float>(event.value))), player->defender_body->GetWorldCenter(), true);
 				}
+			}
+		}
+
+		if (actionMap.isActive("p1_up"))
+		{
+			players[0]->gatherer_body->ApplyLinearImpulse(b2Vec2(0.f, gameToPhysicsUnits (- 2.f)), players[0]->gatherer_body->GetWorldCenter(), true);
+		}
+		if (actionMap.isActive("p1_down"))
+		{
+			players[0]->gatherer_body->ApplyLinearImpulse(b2Vec2(0.f, gameToPhysicsUnits(2.f)), players[0]->gatherer_body->GetWorldCenter(), true);
+		}
+		if (actionMap.isActive("p1_left"))
+		{
+			players[0]->gatherer_body->ApplyLinearImpulse(b2Vec2(gameToPhysicsUnits(-2.f), 0.f), players[0]->gatherer_body->GetWorldCenter(), true);
+		}
+		if (actionMap.isActive("p1_right"))
+		{
+			players[0]->gatherer_body->ApplyLinearImpulse(b2Vec2(gameToPhysicsUnits(2.f), 0.f), players[0]->gatherer_body->GetWorldCenter(), true);
+		}
+
+		if (actionMap.isActive("p2_up"))
+		{
+			players[1]->gatherer_body->ApplyLinearImpulse(b2Vec2(0.f, gameToPhysicsUnits(-2.f)), players[1]->gatherer_body->GetWorldCenter(), true);
+		}
+		if (actionMap.isActive("p2_down"))
+		{
+			players[1]->gatherer_body->ApplyLinearImpulse(b2Vec2(0.f, gameToPhysicsUnits(2.f)), players[1]->gatherer_body->GetWorldCenter(), true);
+		}
+		if (actionMap.isActive("p2_left"))
+		{
+			players[1]->gatherer_body->ApplyLinearImpulse(b2Vec2(gameToPhysicsUnits(-2.f), 0.f), players[1]->gatherer_body->GetWorldCenter(), true);
+		}
+		if (actionMap.isActive("p2_right"))
+		{
+			players[1]->gatherer_body->ApplyLinearImpulse(b2Vec2(gameToPhysicsUnits(2.f), 0.f), players[1]->gatherer_body->GetWorldCenter(), true);
+		}
+
+
+		// Cap the speed to max speed for all players
+		for (auto &player : players)
+		{
+			b2Vec2 MAX_VELOCITY(15.f, 15.f);
+			if (player->defender_body->GetLinearVelocity().x >= MAX_VELOCITY.x)
+			{
+				player->defender_body->SetLinearVelocity(b2Vec2(MAX_VELOCITY.x, player->defender_body->GetLinearVelocity().y));
+			}
+			if (player->defender_body->GetLinearVelocity().y >= MAX_VELOCITY.y)
+			{
+				player->defender_body->SetLinearVelocity(b2Vec2(player->defender_body->GetLinearVelocity().x, MAX_VELOCITY.y));
+			}
+			if (player->defender_body->GetLinearVelocity().x <= -MAX_VELOCITY.x)
+			{
+				player->defender_body->SetLinearVelocity(b2Vec2(-MAX_VELOCITY.x, player->defender_body->GetLinearVelocity().y));
+			}
+			if (player->defender_body->GetLinearVelocity().y <= -MAX_VELOCITY.y)
+			{
+				player->defender_body->SetLinearVelocity(b2Vec2(player->defender_body->GetLinearVelocity().x, -MAX_VELOCITY.y));
+			}
+
+			b2Vec2 MAX_VELOCITY_GATHERER(4.f, 4.f);
+			if (player->gatherer_body->GetLinearVelocity().x >= MAX_VELOCITY_GATHERER.x)
+			{
+				player->gatherer_body->SetLinearVelocity(b2Vec2(MAX_VELOCITY_GATHERER.x, player->gatherer_body->GetLinearVelocity().y));
+			}
+			if (player->gatherer_body->GetLinearVelocity().y >= MAX_VELOCITY_GATHERER.y)
+			{
+				player->gatherer_body->SetLinearVelocity(b2Vec2(player->gatherer_body->GetLinearVelocity().x, MAX_VELOCITY_GATHERER.y));
+			}
+			if (player->gatherer_body->GetLinearVelocity().x <= -MAX_VELOCITY_GATHERER.x)
+			{
+				player->gatherer_body->SetLinearVelocity(b2Vec2(-MAX_VELOCITY_GATHERER.x, player->gatherer_body->GetLinearVelocity().y));
+			}
+			if (player->gatherer_body->GetLinearVelocity().y <= -MAX_VELOCITY_GATHERER.y)
+			{
+				player->gatherer_body->SetLinearVelocity(b2Vec2(player->gatherer_body->GetLinearVelocity().x, -MAX_VELOCITY_GATHERER.y));
 			}
 		}
 		world->Step(1 / 60.f, 8, 3);
 
 		for (auto &player : players)
 		{
-			player->shape.setPosition(physicsToGameUnits(player->body->GetPosition()));
+			player->defender.setPosition(physicsToGameUnits(player->defender_body->GetPosition()));
+			player->gatherer.setPosition(physicsToGameUnits(player->gatherer_body->GetPosition()));
 
 			if (!win)
 			{
 				float distance = std::sqrtf(
-						(player->shape.getPosition().x - innerCircle.getPosition().x) *
-						(player->shape.getPosition().x - innerCircle.getPosition().x) +
-						(player->shape.getPosition().y - innerCircle.getPosition().y) *
-						(player->shape.getPosition().y - innerCircle.getPosition().y));
+						(player->gatherer.getPosition().x - innerCircle.getPosition().x) *
+						(player->gatherer.getPosition().x - innerCircle.getPosition().x) +
+						(player->gatherer.getPosition().y - innerCircle.getPosition().y) *
+						(player->gatherer.getPosition().y - innerCircle.getPosition().y));
 				if (distance <= innerCircle.getRadius())
 				{
-					player->shape.setFillColor(sf::Color::Yellow);
+					player->gatherer.setFillColor(sf::Color::Yellow);
 					if (!player->timer.isRunning())
 					{
 						player->timer.start();
@@ -307,19 +433,17 @@ int main(int argc, char *argv[])
 					{
 						player->timer.stop();
 					}
-					player->shape.setFillColor(sf::Color::Green);
+					player->gatherer.setFillColor(sf::Color::Green);
 				}
 
 				if (player->timer.getElapsedTime().asSeconds() >= 15)
 				{
 					win = true;
 					MessageBoxA(window.getSystemHandle(), "A player won", "WIN!!!", 0);
-					player->shape.setFillColor(sf::Color::Blue);
+					player->gatherer.setFillColor(sf::Color::Blue);
 				}
 			}
 		}
-
-		std::cout << players[0]->body->GetLinearVelocity().x << std::endl;
 
 		window.clear(sf::Color::Black);
 
@@ -344,10 +468,9 @@ int main(int argc, char *argv[])
 		window.draw(innerCircle);
 		for (auto &player : players)
 		{
-			window.draw(player->shape);
+			window.draw(player->defender);
+			window.draw(player->gatherer);
 		}
-		window.draw(s);
-		//window.draw(stalker->shape);
 		window.display();
 	}
 	ManyMouse_Quit();
