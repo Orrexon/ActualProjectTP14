@@ -21,6 +21,9 @@ public:
 
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const;
 	void setDevice(unsigned int p_deviceNo);
+	void clear();
+	void setDefender(Defender* p_defender);
+	void setGatherer(Gatherer* p_gatherer);
 
 	Gatherer* getGatherer();
 	Defender* getDefender();

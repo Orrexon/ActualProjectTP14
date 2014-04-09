@@ -2,11 +2,7 @@
 
 #include "GameState.h"
 #include <vector>
-
-namespace Json
-{
-	class Value;
-}
+#include <json\value.h>
 
 namespace sf
 {
@@ -47,7 +43,7 @@ public:
 	void handleMenuSelected(thor::ActionContext<std::string> context);
 
 private:
-	Json::Value* m_jsonRoot;
+	Json::Value m_jsonRoot;
 	thor::ActionMap<std::string>::CallbackSystem* m_system;
 
 	std::string m_backgroundPath;

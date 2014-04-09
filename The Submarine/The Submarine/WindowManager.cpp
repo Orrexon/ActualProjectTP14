@@ -15,7 +15,7 @@ WindowManager::WindowManager(std::string p_title)
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 0;
 	m_postFocus = false;
-	m_window = new sf::RenderWindow(sf::VideoMode(800, 600), p_title, sf::Style::None, settings);
+	m_window = new sf::RenderWindow(sf::VideoMode(1920, 1080), p_title, sf::Style::None, settings);
 	m_window->setVerticalSyncEnabled(true);
 	m_window->setKeyRepeatEnabled(false);
 }
@@ -58,29 +58,29 @@ std::string WindowManager::browseFile(OPENFILEINFO &ofi)
 	{
 		return "";
 	}
-	return std::string(std::begin(filename), std::end(filename));
+	return std::string(filename.data());
 }
 
-std::string WindowManager::saveFile(std::string title)
+std::string WindowManager::saveFile(OPENFILEINFO &ofi)
 {
-	auto filename = CreateZeroed<TCHAR, 65536>();
-	auto open_filename = CreateZeroed<OPENFILENAMEW>();
+	auto filename = CreateZeroed<CHAR, 255>();
+	auto open_filename = CreateZeroed<OPENFILENAMEA>();
 
-	open_filename.lStructSize = sizeof(OPENFILENAMEW);
-	open_filename.lpstrFilter = L"Din mamma filer\0*.*\0";
+	open_filename.lStructSize = sizeof(OPENFILENAMEA);
+	open_filename.lpstrFilter = "All files(*.*)\0*.*\0";
 	open_filename.lpstrFile = filename.data();
 	open_filename.nMaxFile = filename.size();
-	open_filename.lpstrTitle = L"Your mom";
+	open_filename.lpstrTitle = ofi.caption.c_str();
 	open_filename.hwndOwner = m_window->getSystemHandle();
-	open_filename.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
+	open_filename.Flags = ofi.flags;
 
-	auto result = GetSaveFileNameW(&open_filename);
-	
+	auto result = GetSaveFileNameA(&open_filename);
+
 	if (!result)
 	{
 		return "";
 	}
-	return std::string(std::begin(filename), std::end(filename));
+	return std::string(filename.data());
 }
 
 void WindowManager::setMenu(HMENU menu)

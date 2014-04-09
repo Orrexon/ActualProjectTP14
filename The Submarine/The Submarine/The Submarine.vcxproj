@@ -85,11 +85,14 @@
   <ItemGroup>
     <ClCompile Include="Defender.cpp" />
     <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="FileSystem.cpp" />
     <ClCompile Include="GameState.cpp" />
     <ClCompile Include="GameStateManager.cpp" />
     <ClCompile Include="Gatherer.cpp" />
     <ClCompile Include="HotSpot.cpp" />
+    <ClCompile Include="Level.cpp" />
     <ClCompile Include="LevelEditorState.cpp" />
+    <ClCompile Include="LevelLoader.cpp" />
     <ClCompile Include="linux_evdev.c" />
     <ClCompile Include="macosx_hidmanager.c" />
     <ClCompile Include="macosx_hidutilities.c" />
@@ -99,6 +102,8 @@
     <ClCompile Include="MenuState.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayState.cpp" />
+    <ClCompile Include="ResourceHolder.cpp" />
+    <ClCompile Include="String.cpp" />
     <ClCompile Include="System.cpp" />
     <ClCompile Include="WindowManager.cpp" />
     <ClCompile Include="windows_wminput.c" />
@@ -107,11 +112,14 @@
   <ItemGroup>
     <ClInclude Include="Defender.h" />
     <ClInclude Include="Engine.h" />
+    <ClInclude Include="FileSystem.h" />
     <ClInclude Include="GameState.h" />
     <ClInclude Include="GameStateManager.h" />
     <ClInclude Include="Gatherer.h" />
     <ClInclude Include="HotSpot.h" />
+    <ClInclude Include="Level.h" />
     <ClInclude Include="LevelEditorState.h" />
+    <ClInclude Include="LevelLoader.h" />
     <ClInclude Include="manymouse.hpp" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="MenuState.h" />
@@ -119,6 +127,8 @@
     <ClInclude Include="PlayState.h" />
     <ClInclude Include="raw_input.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="ResourceHolder.h" />
+    <ClInclude Include="String.h" />
     <ClInclude Include="System.hpp" />
     <ClInclude Include="WindowManager.h" />
   </ItemGroup>

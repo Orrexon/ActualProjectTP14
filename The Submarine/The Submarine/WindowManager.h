@@ -32,7 +32,7 @@ public:
 
 	void setMenu(HMENU menu);
 	std::string browseFile(OPENFILEINFO &ofi);
-	std::string saveFile(std::string title = "");
+	std::string saveFile(OPENFILEINFO &ofi);
 	void setFocus(bool p_value);
 	bool isInFocus();
 	bool postFocus();

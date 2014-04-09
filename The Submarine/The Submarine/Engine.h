@@ -12,6 +12,7 @@ namespace sf
 
 class GameStateManager;
 class WindowManager;
+class ResourceHolder;
 
 class Engine
 {
@@ -30,7 +31,7 @@ public:
 private:
 	WindowManager* m_windowManager;
 	GameStateManager* m_gameStateManager;
-
+	ResourceHolder* m_resourceHolder;
 	thor::ActionMap<std::string>* m_actionMap;
 
 	bool m_running;

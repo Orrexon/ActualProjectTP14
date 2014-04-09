@@ -1,0 +1,31 @@
+{
+   "background" : {
+      "path" : "..\\..\\..\\..\\..\\..\\resources\\backgrounds\\awetaa.png"
+   },
+   "players" : [
+      {
+         "defender_position_x" : 82.0,
+         "defender_position_y" : 89.50,
+         "gatherer_position_x" : 26.0,
+         "gatherer_position_y" : 41.50
+      },
+      {
+         "defender_position_x" : 1812.0,
+         "defender_position_y" : 978.50,
+         "gatherer_position_x" : 1869.0,
+         "gatherer_position_y" : 1032.50
+      },
+      {
+         "defender_position_x" : 1820.0,
+         "defender_position_y" : 103.4999694824219,
+         "gatherer_position_x" : 1868.0,
+         "gatherer_position_y" : 54.50
+      },
+      {
+         "defender_position_x" : 78.0,
+         "defender_position_y" : 994.50,
+         "gatherer_position_x" : 29.0,
+         "gatherer_position_y" : 1039.50
+      }
+   ]
+}

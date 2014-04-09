@@ -1,9 +1,14 @@
+#pragma comment(lib, "Shlwapi.lib")
+
 #include <Thor\Input.hpp>
 #include <SFML\Graphics.hpp>
 #include <iostream>
 #include <Windows.h>
 #include <json\json.h>
 #include <fstream>
+#include <Shlwapi.h>
+#include <fstream>
+
 
 #include "LevelEditorState.h"
 #include "GameState.h"
@@ -11,6 +16,7 @@
 #include "WindowManager.h"
 #include "resource.h"
 #include "Math.h"
+#include "String.h"
 
 enum
 {
@@ -69,6 +75,7 @@ LevelEditorState::~LevelEditorState()
 
 void LevelEditorState::entering()
 {
+	sf::Vector2u windowSize = m_stateAsset->windowManager->getWindow()->getSize();
 	m_dialogEditHotspot = nullptr;
 
 	m_placingHotspot = false;
@@ -115,9 +122,9 @@ void LevelEditorState::entering()
 	m_hotSpotTexture->loadFromFile("../resources/hotspot.psd");
 	m_hotSpotSprite->setTexture(*m_hotSpotTexture);
 	m_hotSpotSprite->setOrigin(m_hotSpotTexture->getSize().x / 2, m_hotSpotTexture->getSize().y / 2);
-	
+	m_hotSpotSprite->setPosition(windowSize.x / 2, windowSize.y / 2);
+
 	m_levelView = new sf::View();
-	sf::Vector2u windowSize = m_stateAsset->windowManager->getWindow()->getSize();
 	m_levelView->setSize(sf::Vector2f(windowSize.x, windowSize.y));
 	m_levelView->setCenter(windowSize.x / 2, windowSize.y / 2);
 	
@@ -211,9 +218,6 @@ void LevelEditorState::leaving()
 {
 	delete m_actionMap;
 	m_actionMap = nullptr;
-
-	delete m_jsonRoot;
-	m_jsonRoot = nullptr;
 
 	delete m_system;
 	m_system = nullptr;
@@ -315,16 +319,17 @@ bool LevelEditorState::update(float dt)
 			newCenter.y = max.y - size.y / 2;
 		}
 		m_levelView->setCenter(newCenter);
-		
 	}
 
 	// Changing hotspot position
 	if (m_placingHotspot)
 	{
+		m_hotSpotSprite->setColor(sf::Color(255, 255, 255, 150));
 		m_hotSpotSprite->setPosition(current_mouse_pos);
 		if (getActionMap()->isActive("Place"))
 		{
 			m_placingHotspot = false;
+			m_hotSpotSprite->setColor(sf::Color(255, 255, 255, 255));
 		}
 	}
 	// Changing player position
@@ -409,22 +414,127 @@ void LevelEditorState::openFile()
 {
 	OPENFILEINFO ofi;
 	ofi.caption = "Choose level file";
-	m_stateAsset->windowManager->browseFile(ofi);
+	std::string openpath = m_stateAsset->windowManager->browseFile(ofi);
+
+	if (!openpath.empty())
+	{
+		std::ifstream istream;
+		istream.open(openpath, std::ifstream::binary);
+		if (!istream.is_open())
+		{
+			std::cout << "Failed to load level: Can't open file" << std::endl;
+			return;
+		}
+
+		Json::Value root;
+		Json::Reader reader;
+		if (!reader.parse(istream, root, false))
+		{
+			std::cout << "Failed to parse level " << openpath << " with message: " << reader.getFormatedErrorMessages() << std::endl;
+			return;
+		}
+
+		bool parseError = false;
+		std::cout << "Parsing level..." << std::endl;
+		if (root.isObject())
+		{
+			if (root["background"].isNull() || !root["background"].isObject())
+			{
+				parseError = true;
+				std::cout << "ERROR: Background parsing" << std::endl;
+			}
+			else
+			{
+				if (root["background"]["path"].isNull() || !root["background"]["path"].isString())
+				{
+					parseError = true;
+					std::cout << "ERROR: Background path parsing" << std::endl;
+				}
+			}
+			if (root["players"].isNull() || !root["players"].isArray())
+			{
+				parseError = true;
+				std::cout << "ERROR: Players parsing" << std::endl;
+			}
+			else
+			{
+				if (root["players"].size() != 4)
+				{
+					parseError = true;
+					std::cout << "ERROR: Player count is not equal to four" << std::endl;
+				}
+				for (auto it = root["players"].begin(); it != root["players"].end(); ++it)
+				{
+					if ((*it)["defender_position_x"].isNull() || !(*it)["defender_position_x"].isInt()) { parseError = true; }
+					if ((*it)["defender_position_y"].isNull() || !(*it)["defender_position_y"].isInt()) { parseError = true; }
+					if ((*it)["gatherer_position_x"].isNull() || !(*it)["gatherer_position_x"].isInt()) { parseError = true; }
+					if ((*it)["gatherer_position_y"].isNull() || !(*it)["gatherer_position_y"].isInt()) { parseError = true; }
+				}
+			}
+		}
+		if (!parseError)
+		{
+			std::cout << "Errors were found during parsing level" << std::endl;
+			return;
+		}
+
+		m_backgroundPath = root["background"]["path"].asString();
+		if (m_backgroundTexture->loadFromFile(m_backgroundPath))
+		{
+			m_backgroundSprite->setTexture(*m_backgroundTexture, true);
+		}
+
+		for (auto it = root["players"].begin(); it != root["players"].end(); ++it)
+		{
+			m_players[it.index()]->defender->setPosition(sf::Vector2f((*it)["defender_position_x"].asDouble(), (*it)["defender_position_y"].asDouble()));
+			m_players[it.index()]->gatherer->setPosition(sf::Vector2f((*it)["gatherer_position_x"].asDouble(), (*it)["gatherer_position_y"].asDouble()));
+		}
+	}
 }
 
 void LevelEditorState::saveFile()
 {
-	Json::StyledWriter writer;
-	m_jsonRoot->operator[](2);
-	std::string outout = writer.write(m_jsonRoot);
-	std::string savepath =  m_stateAsset->windowManager->saveFile("");
+	OPENFILEINFO ofi;
+	ofi.caption = "Save level";
+	std::string savepath = m_stateAsset->windowManager->saveFile(ofi);
 	if (!savepath.empty())
 	{
+		Json::Value rootNode;
+		Json::Value backgroundNode;
+		Json::Value playersNode;
+		for (int i = 0; i < 4; i++)
+		{
+			Json::Value playerNode;
+			playerNode["defender_position_x"] = m_players[i]->defender->getPosition().x;
+			playerNode["defender_position_y"] = m_players[i]->defender->getPosition().y;
+			playerNode["gatherer_position_x"] = m_players[i]->gatherer->getPosition().x;
+			playerNode["gatherer_position_y"] = m_players[i]->gatherer->getPosition().y;
+			playersNode.append(playerNode);
+		}
+
+
+		Json::Value backgroundPath(m_backgroundPath);
+
+		char s[255];
+		DWORD a = GetModuleFileNameA(GetModuleHandle(nullptr), s, 255);
+		char *lpStr1;
+		lpStr1 = s;
+		PathRemoveFileSpecA(lpStr1);
+
+		std::string backgroundRelative = String::GetRelativePath(s, m_backgroundPath.c_str());
+
+		backgroundNode["path"] = backgroundRelative;
+
+		rootNode["background"] = backgroundNode;
+		rootNode["players"] = playersNode;
+
+		Json::StyledWriter writer;
+		std::string output = writer.write(rootNode);
 		std::ofstream ofs;
 		ofs.open(savepath);
 		if (ofs.is_open())
 		{
-			ofs << outout;
+			ofs << output;
 			ofs.close();
 			std::string message = "Level was saved in " + savepath;
 			MessageBoxA(m_stateAsset->windowManager->getWindow()->getSystemHandle(), "Success", message.c_str(), 0);
