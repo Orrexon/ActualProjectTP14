@@ -202,7 +202,7 @@ class WorldContactListener : public b2ContactListener
 				if (playerA->m_link != playerB)
 				{
 					std::cout << "YOU ARE MY SWORN ENEMY!!!!!" << std::endl;
-					playerB->gatherer_body->SetTransform(playerB->m_respawn_pos, 90);
+					//playerB->gatherer_body->SetTransform(playerB->m_respawn_pos, 90);
 				}
 				else if (playerA->m_link == playerB)
 				{
