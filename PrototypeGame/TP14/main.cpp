@@ -21,7 +21,8 @@
 #include "AudioSystem.h"
 
 #include "Stalker.h"
-
+#include "Box2D\Dynamics\b2Fixture.h"
+class b2Fixture;
 b2Vec2 gameToPhysicsUnits(sf::Vector2f p_unit)
 {
 	return b2Vec2(p_unit.x / 32.f, p_unit.y / 32.f);
@@ -67,7 +68,34 @@ void createWall(b2World* p_world, sf::Vector2f p_vec1, sf::Vector2f p_vec2)
 	fixtureDef.restitution = 1;
 	body->CreateFixture(&fixtureDef);
 }
+struct PlayerEntity
+{
+	std::string type;
+	Audiosystem* m_audioSystem;
+	b2Body* gatherer_body;
+	b2Body* defender_body;
+	PlayerEntity* m_link;
+	bool m_respawn = false;
+	sf::CircleShape gatherer;
+	sf::CircleShape defender;
+	b2Vec2 m_respawn_pos;
+	void SetLink(PlayerEntity* link)
+	{
+		m_link = link;
+	}
+};
+struct Gatherer : public PlayerEntity
+{
 
+
+
+};
+struct Defender : public PlayerEntity
+{
+
+	b2Vec2 m_respawn_pos;
+
+};
 struct Player
 {
 	Player()
@@ -78,10 +106,40 @@ struct Player
 	thor::StopWatch timer;
 	sf::CircleShape defender;
 	sf::CircleShape gatherer;
-	b2Body* defender_body;
-	b2Body* gatherer_body;
-	Audiosystem* m_audioSystem;
+
+	Gatherer* m_gatherer;
+	Defender* m_defender;
+
+	sf::Color* GetStartColor() { return m_Start_color; }
+	sf::Color* m_Start_color;
+	sf::Texture* texture;
+
 };
+
+void SetStartingColors(std::vector<Player*> players, int value)
+{
+	int i = value;
+	if (0 < i)
+	{
+		players[0]->m_gatherer->gatherer.setFillColor(sf::Color::Blue); players[0]->m_Start_color = new sf::Color(players[0]->m_gatherer->gatherer.getFillColor());
+		players[0]->m_defender->defender.setFillColor(players[0]->m_gatherer->gatherer.getFillColor());
+	}
+	if (1 < i)
+	{
+		players[1]->m_gatherer->gatherer.setFillColor(sf::Color::Red); players[1]->m_Start_color = new sf::Color(players[1]->m_gatherer->gatherer.getFillColor());
+		players[1]->m_defender->defender.setFillColor(players[1]->m_gatherer->gatherer.getFillColor());
+	}
+	if (2 < i)
+	{
+		players[2]->m_gatherer->gatherer.setFillColor(sf::Color::Magenta); players[2]->m_Start_color = new sf::Color(players[2]->m_gatherer->gatherer.getFillColor());
+		players[2]->m_defender->defender.setFillColor(players[2]->m_gatherer->gatherer.getFillColor());
+	}
+	if (3 < i)
+	{
+		players[3]->m_gatherer->gatherer.setFillColor(sf::Color::Cyan); players[3]->m_Start_color = new sf::Color(players[3]->m_gatherer->gatherer.getFillColor());
+		players[3]->m_defender->defender.setFillColor(players[3]->m_gatherer->gatherer.getFillColor());
+	}
+}
 
 Stalker* CreateStalker(b2World* world)
 {
@@ -108,7 +166,7 @@ Stalker* CreateStalker(b2World* world)
 	fixtureDef.restitution = 1;
 	body->CreateFixture(&fixtureDef);
 	stalker->body = body;
-	
+
 	return stalker;
 }
 
@@ -129,15 +187,42 @@ class WorldContactListener : public b2ContactListener
 		b2Fixture* fixtureA = p_contact->GetFixtureA();
 		b2Fixture* fixtureB = p_contact->GetFixtureB();
 
+
 		void* bodyUserDataA = fixtureA->GetBody()->GetUserData();
 		void* bodyUserDataB = fixtureB->GetBody()->GetUserData();
 
 		if (bodyUserDataA != nullptr && bodyUserDataB != nullptr)
 		{
-			Player* playerA = static_cast<Player*>(bodyUserDataA);
-			Player* playerB = static_cast<Player*>(bodyUserDataB);
 
+			PlayerEntity* playerA = static_cast<PlayerEntity*>(bodyUserDataA);
+			PlayerEntity* playerB = static_cast<PlayerEntity*>(bodyUserDataB);
 			playerA->m_audioSystem->playSound("Ball_Contact");
+			if (playerA->type == "defender" && playerB->type == "gatherer")
+			{
+				if (playerA->m_link != playerB)
+				{
+					std::cout << "YOU ARE MY SWORN ENEMY!!!!!" << std::endl;
+					playerB->gatherer_body->SetTransform(playerB->m_respawn_pos, 90);
+				}
+				else if (playerA->m_link == playerB)
+				{
+					std::cout << "YOU ARE MY FRIEND?????" << std::endl;
+				}
+
+			}
+			else if (playerB->type == "defender" && playerA->type == "gatherer")
+			{
+				if (playerB->m_link != playerA)
+				{
+					std::cout << "!!!!!!!!!!!!YOU ARE MY SWORN ENEMY!!!!!" << std::endl;
+
+				}
+				else if (playerB->m_link == playerA)
+				{
+					std::cout << "!!!!!!!!!!!!!!!YOU ARE MY FRIEND?????" << std::endl;
+				}
+			}
+
 		}
 	}
 
@@ -151,11 +236,14 @@ class WorldContactListener : public b2ContactListener
 
 		if (bodyUserDataA != nullptr && bodyUserDataB != nullptr)
 		{
-			Player* playerA = static_cast<Player*>(bodyUserDataA);
-			Player* playerB = static_cast<Player*>(bodyUserDataB);
+			PlayerEntity* playerA = static_cast<PlayerEntity*>(bodyUserDataA);
+			PlayerEntity* playerB = static_cast<PlayerEntity*>(bodyUserDataB);
+
 		}
 	}
 };
+
+
 
 int main(int argc, char *argv[])
 {
@@ -177,12 +265,18 @@ int main(int argc, char *argv[])
 		std::cout << "Mouse " << i << ": " << ManyMouse_DeviceName(i) << std::endl;
 	}
 
+	//Sound & music
 	Audiosystem* audioSystem = new Audiosystem();
 	audioSystem->createSound("Ball_Contact", "../assets/sound/test.ogg");
 
 	// load textures
 	sf::Texture cursor;
 	cursor.loadFromFile("../cursor.png");
+
+	sf::Texture backgroundTex = sf::Texture();
+	backgroundTex.loadFromFile("../assets/png/bgr.png", sf::IntRect(0, 0, 1920, 1080));
+	sf::Sprite background = sf::Sprite(backgroundTex);
+
 
 	// Physics world
 	b2Vec2 gravity(0.0f, 0.0f);
@@ -192,6 +286,7 @@ int main(int argc, char *argv[])
 	WorldContactListener myContactListener;
 	world->SetContactListener(&myContactListener);
 
+
 	createWall(world, sf::Vector2f(0, 0), sf::Vector2f(1920, 0));
 	createWall(world, sf::Vector2f(1920, 0), sf::Vector2f(1920, 1080));
 	createWall(world, sf::Vector2f(1920, 1080), sf::Vector2f(0, 1080));
@@ -200,7 +295,7 @@ int main(int argc, char *argv[])
 	sf::CircleShape innerCircle;
 	innerCircle.setRadius(200);
 	innerCircle.setFillColor(sf::Color(255, 0, 0, 50));
-	innerCircle.setOrigin(200,200);
+	innerCircle.setOrigin(200, 200);
 	innerCircle.setPosition(sf::Vector2f(1920 / 2, 1080 / 2));
 
 
@@ -222,49 +317,66 @@ int main(int argc, char *argv[])
 	for (int i = 0; i < numDevices; i++)
 	{
 		Player* player = new Player();
-		player->m_audioSystem = audioSystem;
-		player->defender.setFillColor(sf::Color::Green);
-		player->defender.setRadius(30.f);
-		player->defender.setOrigin(30.f, 30.f);
-		player->defender.setPosition(defenderPositions[i]);
 
-		player->gatherer.setFillColor(sf::Color::Green);
-		player->gatherer.setRadius(15.f);
-		player->gatherer.setOrigin(15.f, 15.f);
-		player->gatherer.setPosition(gathererPositions[i]);
+		player->m_gatherer = new Gatherer();
+		player->m_defender = new Defender();
+		player->m_gatherer->SetLink(player->m_defender);
+		player->m_defender->SetLink(player->m_gatherer);
+
+		player->m_defender->m_audioSystem = audioSystem;
+		player->m_gatherer->m_audioSystem = audioSystem;
+
+
+		player->m_defender->defender.setFillColor(sf::Color::Green);
+		player->m_defender->defender.setRadius(30.f);
+		player->m_defender->defender.setOrigin(30.f, 30.f);
+		player->m_defender->defender.setPosition(defenderPositions[i]);
+		player->m_defender->m_respawn_pos = gameToPhysicsUnits(defenderPositions[i]);
+
+		player->m_gatherer->gatherer.setFillColor(sf::Color::Green);
+		player->m_gatherer->gatherer.setRadius(15.f);
+		player->m_gatherer->gatherer.setOrigin(15.f, 15.f);
+		player->m_gatherer->gatherer.setPosition(gathererPositions[i]);
+		player->m_gatherer->m_respawn_pos = gameToPhysicsUnits(gathererPositions[i]);
+
+		player->m_gatherer->type = "gatherer";
+		//player->m_gatherer->gatherer = player->gatherer;
+
+		player->m_defender->type = "defender";
+		//player->m_defender->defender = player->defender;
 
 		// Defender body
 		{
 			b2BodyDef bodyDef;
-			bodyDef.position = gameToPhysicsUnits(player->defender.getPosition());
+			bodyDef.position = gameToPhysicsUnits(player->m_defender->defender.getPosition());
 			bodyDef.type = b2_dynamicBody;
 			bodyDef.linearDamping = 0.3f;
-			bodyDef.userData = player;
+			bodyDef.userData = player->m_defender;
 			b2Body* body = world->CreateBody(&bodyDef);
-
+			
 			b2CircleShape shape;
-			shape.m_radius = gameToPhysicsUnits(player->defender.getRadius());
+			shape.m_radius = gameToPhysicsUnits(player->m_defender->defender.getRadius());
 
 			b2FixtureDef fixtureDef;
 			fixtureDef.density = 1;
 			fixtureDef.shape = &shape;
 			fixtureDef.friction = 0.3f;
 			fixtureDef.restitution = 0.6;
-			body->CreateFixture(&fixtureDef);
-			player->defender_body = body;
+			fixtureDef.userData = body->CreateFixture(&fixtureDef);
+			player->m_defender->defender_body = body;
 		}
-		
+
 		// Gatherer body
 		{
 			b2BodyDef bodyDef;
-			bodyDef.position = gameToPhysicsUnits(player->gatherer.getPosition());
+			bodyDef.position = gameToPhysicsUnits(player->m_gatherer->gatherer.getPosition());
 			bodyDef.type = b2_dynamicBody;
 			bodyDef.linearDamping = 0.3f;
-			bodyDef.userData = player;
+			bodyDef.userData = player->m_gatherer;
 			b2Body* body = world->CreateBody(&bodyDef);
 
 			b2CircleShape shape;
-			shape.m_radius = gameToPhysicsUnits(player->gatherer.getRadius());
+			shape.m_radius = gameToPhysicsUnits(player->m_gatherer->gatherer.getRadius());
 
 			b2FixtureDef fixtureDef;
 			fixtureDef.density = 1;
@@ -272,17 +384,23 @@ int main(int argc, char *argv[])
 			fixtureDef.friction = 0.3f;
 			fixtureDef.restitution = 0.6;
 			body->CreateFixture(&fixtureDef);
-			player->gatherer_body = body;
+			player->m_gatherer->gatherer_body = body;
 		}
 
 		players.push_back(player);
+
 	}
+	//Setting the starting colors;
+	SetStartingColors(players, numDevices);
+
+
 
 	// Create render window
 	sf::RenderWindow window(sf::VideoMode(1920, 1080), "Doodlemeat", sf::Style::None);
 	window.setVerticalSyncEnabled(true);
 	window.setMouseCursorVisible(false);
 	window.setKeyRepeatEnabled(false);
+
 
 	sf::Texture box;
 	box.loadFromFile("../assets/png/box_32.png");
@@ -313,6 +431,8 @@ int main(int argc, char *argv[])
 		actionMap2.update(window);
 
 		ManyMouseEvent event;
+
+
 		while (ManyMouse_PollEvent(&event))
 		{
 			Player* player = players[event.device];
@@ -322,47 +442,47 @@ int main(int argc, char *argv[])
 				sf::Vector2f playerPosition = player->defender.getPosition();
 				if (event.item == 0)
 				{
-					player->defender_body->ApplyLinearImpulse(b2Vec2(10.f * gameToPhysicsUnits(static_cast<float>(event.value)), 0.f), player->defender_body->GetWorldCenter(), true);
+					player->m_defender->defender_body->ApplyLinearImpulse(b2Vec2(10.f * gameToPhysicsUnits(static_cast<float>(event.value)), 0.f), player->m_defender->defender_body->GetWorldCenter(), true);
 				}
 				if (event.item == 1)
 				{
-					player->defender_body->ApplyLinearImpulse(b2Vec2(0.f, 10.f * gameToPhysicsUnits(static_cast<float>(event.value))), player->defender_body->GetWorldCenter(), true);
+					player->m_defender->defender_body->ApplyLinearImpulse(b2Vec2(0.f, 10.f * gameToPhysicsUnits(static_cast<float>(event.value))), player->m_defender->defender_body->GetWorldCenter(), true);
 				}
 			}
 		}
 
 		if (actionMap.isActive("p1_up"))
 		{
-			players[0]->gatherer_body->ApplyLinearImpulse(b2Vec2(0.f, gameToPhysicsUnits (- 2.f)), players[0]->gatherer_body->GetWorldCenter(), true);
+			players[0]->m_gatherer->gatherer_body->ApplyLinearImpulse(b2Vec2(0.f, gameToPhysicsUnits(-2.f)), players[0]->m_gatherer->gatherer_body->GetWorldCenter(), true);
 		}
 		if (actionMap.isActive("p1_down"))
 		{
-			players[0]->gatherer_body->ApplyLinearImpulse(b2Vec2(0.f, gameToPhysicsUnits(2.f)), players[0]->gatherer_body->GetWorldCenter(), true);
+			players[0]->m_gatherer->gatherer_body->ApplyLinearImpulse(b2Vec2(0.f, gameToPhysicsUnits(2.f)), players[0]->m_gatherer->gatherer_body->GetWorldCenter(), true);
 		}
 		if (actionMap.isActive("p1_left"))
 		{
-			players[0]->gatherer_body->ApplyLinearImpulse(b2Vec2(gameToPhysicsUnits(-2.f), 0.f), players[0]->gatherer_body->GetWorldCenter(), true);
+			players[0]->m_gatherer->gatherer_body->ApplyLinearImpulse(b2Vec2(gameToPhysicsUnits(-2.f), 0.f), players[0]->m_gatherer->gatherer_body->GetWorldCenter(), true);
 		}
 		if (actionMap.isActive("p1_right"))
 		{
-			players[0]->gatherer_body->ApplyLinearImpulse(b2Vec2(gameToPhysicsUnits(2.f), 0.f), players[0]->gatherer_body->GetWorldCenter(), true);
+			players[0]->m_gatherer->gatherer_body->ApplyLinearImpulse(b2Vec2(gameToPhysicsUnits(2.f), 0.f), players[0]->m_gatherer->gatherer_body->GetWorldCenter(), true);
 		}
 
 		if (actionMap.isActive("p2_up"))
 		{
-			players[1]->gatherer_body->ApplyLinearImpulse(b2Vec2(0.f, gameToPhysicsUnits(-2.f)), players[1]->gatherer_body->GetWorldCenter(), true);
+			players[1]->m_gatherer->gatherer_body->ApplyLinearImpulse(b2Vec2(0.f, gameToPhysicsUnits(-2.f)), players[1]->m_gatherer->gatherer_body->GetWorldCenter(), true);
 		}
 		if (actionMap.isActive("p2_down"))
 		{
-			players[1]->gatherer_body->ApplyLinearImpulse(b2Vec2(0.f, gameToPhysicsUnits(2.f)), players[1]->gatherer_body->GetWorldCenter(), true);
+			players[1]->m_gatherer->gatherer_body->ApplyLinearImpulse(b2Vec2(0.f, gameToPhysicsUnits(2.f)), players[1]->m_gatherer->gatherer_body->GetWorldCenter(), true);
 		}
 		if (actionMap.isActive("p2_left"))
 		{
-			players[1]->gatherer_body->ApplyLinearImpulse(b2Vec2(gameToPhysicsUnits(-2.f), 0.f), players[1]->gatherer_body->GetWorldCenter(), true);
+			players[1]->m_gatherer->gatherer_body->ApplyLinearImpulse(b2Vec2(gameToPhysicsUnits(-2.f), 0.f), players[1]->m_gatherer->gatherer_body->GetWorldCenter(), true);
 		}
 		if (actionMap.isActive("p2_right"))
 		{
-			players[1]->gatherer_body->ApplyLinearImpulse(b2Vec2(gameToPhysicsUnits(2.f), 0.f), players[1]->gatherer_body->GetWorldCenter(), true);
+			players[1]->m_gatherer->gatherer_body->ApplyLinearImpulse(b2Vec2(gameToPhysicsUnits(2.f), 0.f), players[1]->m_gatherer->gatherer_body->GetWorldCenter(), true);
 		}
 
 
@@ -370,58 +490,63 @@ int main(int argc, char *argv[])
 		for (auto &player : players)
 		{
 			b2Vec2 MAX_VELOCITY(15.f, 15.f);
-			if (player->defender_body->GetLinearVelocity().x >= MAX_VELOCITY.x)
+			if (player->m_defender->defender_body->GetLinearVelocity().x >= MAX_VELOCITY.x)
 			{
-				player->defender_body->SetLinearVelocity(b2Vec2(MAX_VELOCITY.x, player->defender_body->GetLinearVelocity().y));
+				player->m_defender->defender_body->SetLinearVelocity(b2Vec2(MAX_VELOCITY.x, player->m_defender->defender_body->GetLinearVelocity().y));
 			}
-			if (player->defender_body->GetLinearVelocity().y >= MAX_VELOCITY.y)
+			if (player->m_defender->defender_body->GetLinearVelocity().y >= MAX_VELOCITY.y)
 			{
-				player->defender_body->SetLinearVelocity(b2Vec2(player->defender_body->GetLinearVelocity().x, MAX_VELOCITY.y));
+				player->m_defender->defender_body->SetLinearVelocity(b2Vec2(player->m_defender->defender_body->GetLinearVelocity().x, MAX_VELOCITY.y));
 			}
-			if (player->defender_body->GetLinearVelocity().x <= -MAX_VELOCITY.x)
+			if (player->m_defender->defender_body->GetLinearVelocity().x <= -MAX_VELOCITY.x)
 			{
-				player->defender_body->SetLinearVelocity(b2Vec2(-MAX_VELOCITY.x, player->defender_body->GetLinearVelocity().y));
+				player->m_defender->defender_body->SetLinearVelocity(b2Vec2(-MAX_VELOCITY.x, player->m_defender->defender_body->GetLinearVelocity().y));
 			}
-			if (player->defender_body->GetLinearVelocity().y <= -MAX_VELOCITY.y)
+			if (player->m_defender->defender_body->GetLinearVelocity().y <= -MAX_VELOCITY.y)
 			{
-				player->defender_body->SetLinearVelocity(b2Vec2(player->defender_body->GetLinearVelocity().x, -MAX_VELOCITY.y));
+				player->m_defender->defender_body->SetLinearVelocity(b2Vec2(player->m_defender->defender_body->GetLinearVelocity().x, -MAX_VELOCITY.y));
 			}
 
 			b2Vec2 MAX_VELOCITY_GATHERER(4.f, 4.f);
-			if (player->gatherer_body->GetLinearVelocity().x >= MAX_VELOCITY_GATHERER.x)
+			if (player->m_gatherer->gatherer_body->GetLinearVelocity().x >= MAX_VELOCITY_GATHERER.x)
 			{
-				player->gatherer_body->SetLinearVelocity(b2Vec2(MAX_VELOCITY_GATHERER.x, player->gatherer_body->GetLinearVelocity().y));
+				player->m_gatherer->gatherer_body->SetLinearVelocity(b2Vec2(MAX_VELOCITY_GATHERER.x, player->m_gatherer->gatherer_body->GetLinearVelocity().y));
 			}
-			if (player->gatherer_body->GetLinearVelocity().y >= MAX_VELOCITY_GATHERER.y)
+			if (player->m_gatherer->gatherer_body->GetLinearVelocity().y >= MAX_VELOCITY_GATHERER.y)
 			{
-				player->gatherer_body->SetLinearVelocity(b2Vec2(player->gatherer_body->GetLinearVelocity().x, MAX_VELOCITY_GATHERER.y));
+				player->m_gatherer->gatherer_body->SetLinearVelocity(b2Vec2(player->m_gatherer->gatherer_body->GetLinearVelocity().x, MAX_VELOCITY_GATHERER.y));
 			}
-			if (player->gatherer_body->GetLinearVelocity().x <= -MAX_VELOCITY_GATHERER.x)
+			if (player->m_gatherer->gatherer_body->GetLinearVelocity().x <= -MAX_VELOCITY_GATHERER.x)
 			{
-				player->gatherer_body->SetLinearVelocity(b2Vec2(-MAX_VELOCITY_GATHERER.x, player->gatherer_body->GetLinearVelocity().y));
+				player->m_gatherer->gatherer_body->SetLinearVelocity(b2Vec2(-MAX_VELOCITY_GATHERER.x, player->m_gatherer->gatherer_body->GetLinearVelocity().y));
 			}
-			if (player->gatherer_body->GetLinearVelocity().y <= -MAX_VELOCITY_GATHERER.y)
+			if (player->m_gatherer->gatherer_body->GetLinearVelocity().y <= -MAX_VELOCITY_GATHERER.y)
 			{
-				player->gatherer_body->SetLinearVelocity(b2Vec2(player->gatherer_body->GetLinearVelocity().x, -MAX_VELOCITY_GATHERER.y));
+				player->m_gatherer->gatherer_body->SetLinearVelocity(b2Vec2(player->m_gatherer->gatherer_body->GetLinearVelocity().x, -MAX_VELOCITY_GATHERER.y));
 			}
 		}
 		world->Step(1 / 60.f, 8, 3);
 
+
+
 		for (auto &player : players)
 		{
-			player->defender.setPosition(physicsToGameUnits(player->defender_body->GetPosition()));
-			player->gatherer.setPosition(physicsToGameUnits(player->gatherer_body->GetPosition()));
+
+			player->m_defender->defender.setPosition(physicsToGameUnits(player->m_defender->defender_body->GetPosition()));
+			player->m_gatherer->gatherer.setPosition(physicsToGameUnits(player->m_gatherer->gatherer_body->GetPosition()));
+
+
 
 			if (!win)
 			{
 				float distance = std::sqrtf(
-						(player->gatherer.getPosition().x - innerCircle.getPosition().x) *
-						(player->gatherer.getPosition().x - innerCircle.getPosition().x) +
-						(player->gatherer.getPosition().y - innerCircle.getPosition().y) *
-						(player->gatherer.getPosition().y - innerCircle.getPosition().y));
+					(player->m_gatherer->gatherer.getPosition().x - innerCircle.getPosition().x) *
+					(player->m_gatherer->gatherer.getPosition().x - innerCircle.getPosition().x) +
+					(player->m_gatherer->gatherer.getPosition().y - innerCircle.getPosition().y) *
+					(player->m_gatherer->gatherer.getPosition().y - innerCircle.getPosition().y));
 				if (distance <= innerCircle.getRadius())
 				{
-					player->gatherer.setFillColor(sf::Color::Yellow);
+					player->m_gatherer->gatherer.setFillColor(sf::Color::Yellow);
 					if (!player->timer.isRunning())
 					{
 						player->timer.start();
@@ -433,19 +558,23 @@ int main(int argc, char *argv[])
 					{
 						player->timer.stop();
 					}
-					player->gatherer.setFillColor(sf::Color::Green);
+					if (player->GetStartColor() != nullptr)
+					{
+						player->m_gatherer->gatherer.setFillColor(*player->GetStartColor());
+					}
 				}
 
 				if (player->timer.getElapsedTime().asSeconds() >= 15)
 				{
 					win = true;
 					MessageBoxA(window.getSystemHandle(), "A player won", "WIN!!!", 0);
-					player->gatherer.setFillColor(sf::Color::Blue);
+					player->m_gatherer->gatherer.setFillColor(sf::Color::Blue);
 				}
 			}
 		}
 
 		window.clear(sf::Color::Black);
+		window.draw(background);
 
 		for (b2Body* bodyIt = world->GetBodyList(); bodyIt != 0; bodyIt = bodyIt->GetNext())
 		{
@@ -468,10 +597,18 @@ int main(int argc, char *argv[])
 		window.draw(innerCircle);
 		for (auto &player : players)
 		{
-			window.draw(player->defender);
-			window.draw(player->gatherer);
+			window.draw(player->m_defender->defender);
+			window.draw(player->m_gatherer->gatherer);
 		}
 		window.display();
 	}
+	for (int i = 0; i < players.size(); i++)
+	{
+		delete players[i]->m_Start_color;
+		players[i]->m_Start_color = nullptr;
+		delete players[i];
+		players[i] = nullptr;
+	}
 	ManyMouse_Quit();
 }
+
