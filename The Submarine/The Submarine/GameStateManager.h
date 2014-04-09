@@ -1,12 +1,14 @@
 #pragma once
 
 #include <SFML\Window\Event.hpp>
+#include <Thor\Resources.hpp>
 #include <vector>
 #include <memory>
 
 class GameState;
 class WindowManager;
 class GameStateManager;
+class ResourceHolder;
 
 namespace thor
 {
@@ -18,6 +20,7 @@ struct StateAsset
 	WindowManager* windowManager;
 	GameStateManager* gameStateManager;
 	thor::ActionMap<std::string>* actionMap;
+	ResourceHolder* resourceHolder;
 };
 
 class GameStateManager

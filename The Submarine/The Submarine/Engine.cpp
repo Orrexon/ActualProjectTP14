@@ -8,6 +8,7 @@
 #include "Engine.h"
 #include "GameStateManager.h"
 #include "MenuState.h"
+#include "ResourceHolder.h"
 #include "WindowManager.h"
 
 Engine::Engine()
@@ -15,6 +16,7 @@ Engine::Engine()
 	m_running = true;
 	m_windowManager = nullptr;
 	m_actionMap = nullptr;
+	m_resourceHolder = nullptr;
 }
 
 Engine::~Engine()
@@ -35,8 +37,11 @@ bool Engine::init(std::string p_title)
 	m_actionMap->operator[]("lost_focus") = thor::Action(sf::Event::LostFocus);
 	m_actionMap->operator[]("gained_focus") = thor::Action(sf::Event::GainedFocus);
 
+	m_resourceHolder = new ResourceHolder();
+
 	m_gameStateManager->getStateAsset()->windowManager = m_windowManager;
 	m_gameStateManager->getStateAsset()->actionMap = m_actionMap;
+	m_gameStateManager->getStateAsset()->resourceHolder = m_resourceHolder;
 	return true;
 }
 
@@ -99,6 +104,9 @@ void Engine::exit()
 
 	delete m_actionMap;
 	m_actionMap = nullptr;
+
+	delete m_resourceHolder;
+	m_resourceHolder = nullptr;
 }
 
 WindowManager* Engine::getWindowManager()
