@@ -1,13 +1,17 @@
+#include <Thor/Particles.hpp>
+
 #include "Player.h"
 #include "Gatherer.h"
 #include "Defender.h"
+#include "ResourceHolder.h"
+
 #include <iostream>
 
-Player::Player(PlayerEnum p_identifier)
+Player::Player()
 {
-	m_identifier = p_identifier;
 	m_defender = nullptr;
 	m_gatherer = nullptr;
+	m_particleSystem = new thor::ParticleSystem();
 }
 
 Player::~Player()
@@ -17,6 +21,9 @@ Player::~Player()
 
 	delete m_defender;
 	m_defender = nullptr;
+
+	delete m_particleSystem;
+	m_particleSystem = nullptr;
 }
 
 void Player::draw(sf::RenderTarget &target, sf::RenderStates states) const
@@ -52,7 +59,15 @@ void Player::setGatherer(Gatherer* p_gatherer)
 {
 	m_gatherer = p_gatherer;
 }
+void Player::initializeParticleSystem(ResourceHolder* resourceHolder)
+{
+	m_particleSystem->setTexture(resourceHolder->getTexture("particle_round.png"));
+}
 
+thor::ParticleSystem* Player::getParticleSystem()
+{
+	return m_particleSystem;
+}
 Gatherer* Player::getGatherer()
 {
 	return m_gatherer;
@@ -62,3 +77,8 @@ Defender* Player::getDefender()
 {
 	return m_defender;
 }
+unsigned int Player::getDevice()
+{
+	return m_deviceNo;
+}
+

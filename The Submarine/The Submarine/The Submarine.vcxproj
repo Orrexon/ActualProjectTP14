@@ -83,6 +83,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Box2DWorldDraw.cpp" />
+    <ClCompile Include="Config.cpp" />
     <ClCompile Include="Defender.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="FileSystem.cpp" />
@@ -100,6 +102,7 @@
     <ClCompile Include="manymouse.c" />
     <ClCompile Include="Math.cpp" />
     <ClCompile Include="MenuState.cpp" />
+    <ClCompile Include="PhysicsHelper.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayState.cpp" />
     <ClCompile Include="ResourceHolder.cpp" />
@@ -110,10 +113,13 @@
     <ClCompile Include="x11_xinput2.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Box2DWorldDraw.h" />
+    <ClInclude Include="Config.h" />
     <ClInclude Include="Defender.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="FileSystem.h" />
     <ClInclude Include="GameState.h" />
+    <ClInclude Include="GameStateAssets.h" />
     <ClInclude Include="GameStateManager.h" />
     <ClInclude Include="Gatherer.h" />
     <ClInclude Include="HotSpot.h" />
@@ -123,6 +129,7 @@
     <ClInclude Include="manymouse.hpp" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="MenuState.h" />
+    <ClInclude Include="PhysicsHelper.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayState.h" />
     <ClInclude Include="raw_input.h" />

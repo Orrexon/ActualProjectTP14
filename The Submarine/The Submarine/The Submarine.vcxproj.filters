@@ -52,6 +52,9 @@
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="FileSystem.cpp" />
     <ClCompile Include="ResourceHolder.cpp" />
+    <ClCompile Include="PhysicsHelper.cpp" />
+    <ClCompile Include="Box2DWorldDraw.cpp" />
+    <ClCompile Include="Config.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h" />
@@ -93,6 +96,10 @@
     <ClInclude Include="Level.h" />
     <ClInclude Include="FileSystem.h" />
     <ClInclude Include="ResourceHolder.h" />
+    <ClInclude Include="PhysicsHelper.h" />
+    <ClInclude Include="Box2DWorldDraw.h" />
+    <ClInclude Include="Config.h" />
+    <ClInclude Include="GameStateAssets.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="GameStates">

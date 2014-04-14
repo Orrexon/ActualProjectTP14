@@ -2,21 +2,19 @@
 
 #include <SFML\Graphics.hpp>
 
+namespace thor
+{
+	class ParticleSystem;
+}
+
+class ResourceHolder;
 class Gatherer;
 class Defender;
-
-enum PlayerEnum
-{
-	PLAYER_1,
-	PLAYER_2,
-	PLAYER_3,
-	PLAYER_4
-};
 
 class Player: public sf::Drawable
 {
 public:
-	Player(PlayerEnum p_identifier);
+	Player();
 	~Player();
 
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const;
@@ -24,14 +22,18 @@ public:
 	void clear();
 	void setDefender(Defender* p_defender);
 	void setGatherer(Gatherer* p_gatherer);
+	void initializeParticleSystem(ResourceHolder* resourceHolder);
 
 	Gatherer* getGatherer();
 	Defender* getDefender();
+	thor::ParticleSystem* getParticleSystem();
+
+	unsigned int getDevice();
 
 private:
 	unsigned int m_deviceNo;
-	PlayerEnum m_identifier;
 	Gatherer* m_gatherer;
 	Defender* m_defender;
+	thor::ParticleSystem* m_particleSystem;
 };
 

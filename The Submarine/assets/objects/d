@@ -1,0 +1,38 @@
+{
+   "background" : {
+      "path" : "../assets/textures/backgrounds/default.png"
+   },
+   "objects" : [
+      {
+         "path" : "../assets/objects/stone.objx",
+         "x" : 576,
+         "y" : 115
+      }
+   ],
+   "players" : [
+      {
+         "defender_position_x" : 100.0,
+         "defender_position_y" : 100.0,
+         "gatherer_position_x" : 50.0,
+         "gatherer_position_y" : 50.0
+      },
+      {
+         "defender_position_x" : 1820.0,
+         "defender_position_y" : 100.0,
+         "gatherer_position_x" : 1870.0,
+         "gatherer_position_y" : 50.0
+      },
+      {
+         "defender_position_x" : 1820.0,
+         "defender_position_y" : 980.0,
+         "gatherer_position_x" : 1870.0,
+         "gatherer_position_y" : 1030.0
+      },
+      {
+         "defender_position_x" : 100.0,
+         "defender_position_y" : 980.0,
+         "gatherer_position_x" : 50.0,
+         "gatherer_position_y" : 1030.0
+      }
+   ]
+}

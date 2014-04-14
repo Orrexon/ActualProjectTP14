@@ -11,9 +11,9 @@ class ResourceHolder
 public:
 	ResourceHolder();
 
-	sf::Texture& getTexture(const std::string& p_filename);
-	sf::Font& getFont(const std::string& p_filename);
-	sf::SoundBuffer& getSound(const std::string& p_filename);
+	sf::Texture& getTexture(const std::string& p_filename, bool use_defined_path = true);
+	sf::Font& getFont(const std::string& p_filename, bool use_defined_path = true);
+	sf::SoundBuffer& getSound(const std::string& p_filename, bool use_defined_path = true);
 
 private:
 	std::string m_texturePath;

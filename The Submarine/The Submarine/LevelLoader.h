@@ -2,7 +2,7 @@
 
 #include <string>
 
-class Level;
+#include "Level.h"
 
 class LevelLoader
 {
@@ -12,6 +12,8 @@ public:
 
 	Level* parseLevel(const std::string &filepath);
 	void setDirectory(const std::string &filepath);
+
+	LevelObject* createObject(std::string filepath, sf::Vector2f position);
 
 private:
 	std::string m_levelDirectory;

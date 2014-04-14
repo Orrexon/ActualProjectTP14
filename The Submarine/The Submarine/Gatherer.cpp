@@ -17,3 +17,13 @@ sf::Sprite* Gatherer::getSprite()
 {
 	return m_sprite;
 }
+
+void Gatherer::setBody(b2Body* body)
+{
+	m_body = body;
+}
+
+b2Body* Gatherer::getBody()
+{
+	return m_body;
+}

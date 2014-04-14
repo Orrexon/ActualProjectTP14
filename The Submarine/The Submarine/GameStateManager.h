@@ -9,6 +9,7 @@ class GameState;
 class WindowManager;
 class GameStateManager;
 class ResourceHolder;
+class Config;
 
 namespace thor
 {
@@ -21,6 +22,7 @@ struct StateAsset
 	GameStateManager* gameStateManager;
 	thor::ActionMap<std::string>* actionMap;
 	ResourceHolder* resourceHolder;
+	Config* config;
 };
 
 class GameStateManager

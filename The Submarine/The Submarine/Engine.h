@@ -13,6 +13,7 @@ namespace sf
 class GameStateManager;
 class WindowManager;
 class ResourceHolder;
+class Config;
 
 class Engine
 {
@@ -29,6 +30,7 @@ public:
 	WindowManager* getWindowManager();
 
 private:
+	Config* m_config;
 	WindowManager* m_windowManager;
 	GameStateManager* m_gameStateManager;
 	ResourceHolder* m_resourceHolder;

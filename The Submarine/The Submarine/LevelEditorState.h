@@ -3,6 +3,7 @@
 #include "GameState.h"
 #include <vector>
 #include <json\value.h>
+#include <SFML\Graphics.hpp>
 
 namespace sf
 {
@@ -15,6 +16,17 @@ struct PlayerStruct
 {
 	sf::CircleShape* defender;
 	sf::CircleShape* gatherer;
+};
+
+struct Object
+{
+	std::string image_path;
+	std::string object_path;
+	sf::Sprite* sprite;
+	float circle_radius;
+	bool use_circle_collision;
+	sf::Vector2f circle_position;
+	std::vector<sf::Vector2f> points;
 };
 
 
@@ -40,6 +52,9 @@ public:
 	void handlePlayer(int player_id, int char_id);
 	void chooseHotspotImage();
 	void setHotspotRadius();
+	void setDefault();
+	void loadObject();
+	void loadObjectRaw(std::string objectFile);
 	void handleMenuSelected(thor::ActionContext<std::string> context);
 
 private:
@@ -47,18 +62,20 @@ private:
 	thor::ActionMap<std::string>::CallbackSystem* m_system;
 
 	std::string m_backgroundPath;
-	std::string m_hotspotPath;
 
 	// SPRITE & TEXTURES
 	sf::Texture* m_backgroundTexture;
-	sf::Texture* m_hotSpotTexture;
 
 	sf::Sprite* m_backgroundSprite;
-	sf::Sprite* m_hotSpotSprite;
+	sf::CircleShape m_hotSpotShape;
 
 	sf::View* m_levelView;
 	sf::Vector2i m_scrollHandlePosition;
 	sf::Vector2f m_defaultCenter;
+
+	// CREATE OBJECT THINGS
+	std::vector<Object> objects;
+	
 	
 	bool m_exit;
 	bool m_scrollingScreen;
