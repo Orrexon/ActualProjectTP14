@@ -55,6 +55,9 @@
     <ClCompile Include="PhysicsHelper.cpp" />
     <ClCompile Include="Box2DWorldDraw.cpp" />
     <ClCompile Include="Config.cpp" />
+    <ClCompile Include="ContactListener.cpp" />
+    <ClCompile Include="ContactFilter.cpp" />
+    <ClCompile Include="UserData.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h" />
@@ -100,6 +103,9 @@
     <ClInclude Include="Box2DWorldDraw.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="GameStateAssets.h" />
+    <ClInclude Include="ContactListener.h" />
+    <ClInclude Include="ContactFilter.h" />
+    <ClInclude Include="UserData.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="GameStates">

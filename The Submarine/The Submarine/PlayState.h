@@ -7,6 +7,8 @@ class Player;
 class LevelLoader;
 class HotSpot;
 class Level;
+class ContactListener;
+class ContactFilter;
 
 namespace thor
 {
@@ -35,6 +37,9 @@ public:
 	b2Body* createWall(sf::Vector2f v1, sf::Vector2f v2);
 private:
 	b2World m_world;
+	ContactListener* m_contactListener;
+	ContactFilter* m_contactFilter;
+
 	std::vector<unsigned int> m_mouseIndicies;
 	std::vector<Player*> m_players;
 	std::vector<b2Body*> m_walls;

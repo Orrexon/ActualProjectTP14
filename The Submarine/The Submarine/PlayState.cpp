@@ -22,6 +22,8 @@
 #include "Gatherer.h"
 #include "Defender.h"
 #include "Box2DWorldDraw.h"
+#include "ContactListener.h"
+#include "ContactFilter.h"
 
 PlayState::PlayState() : m_world(b2Vec2(0.f, 0.f))
 {
@@ -34,7 +36,13 @@ PlayState::~PlayState()
 void PlayState::entering()
 {
 	m_exclusive = false;
+
+	m_contactListener = new ContactListener();
+	m_contactFilter = new ContactFilter();
+
 	m_world.SetAllowSleeping(true);
+	m_world.SetContactListener(m_contactListener);
+	m_world.SetContactFilter(m_contactFilter);
 
 	m_playerParticleEmitter = new thor::UniversalEmitter();
 	m_playerParticleEmitter->setEmissionRate(30);
@@ -80,6 +88,13 @@ void PlayState::leaving()
 
 	delete m_actionMap;
 	m_actionMap = nullptr;
+
+	delete m_contactListener;
+	m_contactListener = nullptr;
+
+	delete m_contactFilter;
+	m_contactFilter = nullptr;
+
 	std::cout << "Leaving play state" << std::endl;
 }
 
@@ -114,9 +129,12 @@ bool PlayState::update(float dt)
 	}
 
 	m_world.Step(1.f / 60.f, 8, 3);
+
 	for (auto &player : m_players)
 	{
 		if (player == nullptr) continue;
+		player->processEventualDeath();
+		player->getDeathTimer()->update();
 		player->getParticleSystem()->update(sf::seconds(dt));
 		player->getDefender()->getSprite()->setPosition(PhysicsHelper::physicsToGameUnits(player->getDefender()->getBody()->GetPosition()));
 		player->getGatherer()->getSprite()->setPosition(PhysicsHelper::physicsToGameUnits(player->getGatherer()->getBody()->GetPosition()));
@@ -153,7 +171,8 @@ void PlayState::initManyMouse()
 		std::string name = ManyMouse_DeviceName(i);
 		if (name.find("Pad") != std::string::npos)
 		{
-			m_mouseIndicies.push_back(-1);
+			//m_mouseIndicies.push_back(-1);
+			m_mouseIndicies.push_back(i);
 			continue;
 		}
 		else
@@ -166,7 +185,7 @@ void PlayState::initManyMouse()
 void PlayState::initPlayers()
 {
 	m_players.clear();
-	for (int i = 0; i < m_mouseIndicies.size(); i++)
+	for (std::size_t i = 0; i < m_mouseIndicies.size(); i++)
 	{
 		if (m_mouseIndicies[i] != -1)
 		{
@@ -201,7 +220,7 @@ void PlayState::loadNewLevel()
 	m_currentLevel->getBackground()->setTexture(m_stateAsset->resourceHolder->getTexture(m_currentLevel->getBackgroundPath(), false));
 
 	// Create defenders and gatherers
-	for (int i = 0; i < m_players.size(); i++)
+	for (std::size_t i = 0; i < m_players.size(); i++)
 	{
 		if (m_players[i] == nullptr) continue;
 		m_players[i]->clear();
@@ -214,12 +233,9 @@ void PlayState::loadNewLevel()
 		defender->getSprite()->setTexture(m_stateAsset->resourceHolder->getTexture("defender.png"));
 		gatherer->getSprite()->setTexture(m_stateAsset->resourceHolder->getTexture("gatherer.png"));
 
-		defender->getSprite()->setPosition(m_currentLevel->getDefenderSpawn(i));
-		gatherer->getSprite()->setPosition(m_currentLevel->getGathererSpawn(i));
+		defender->setSpawnPosition(m_currentLevel->getDefenderSpawn(i));
+		gatherer->setSpawnPosition(m_currentLevel->getGathererSpawn(i));
 
-		defender->getSprite()->setOrigin(defender->getSprite()->getLocalBounds().width / 2, defender->getSprite()->getLocalBounds().height / 2);
-		gatherer->getSprite()->setOrigin(gatherer->getSprite()->getLocalBounds().width / 2, gatherer->getSprite()->getLocalBounds().height / 2);
-		
 		m_players[i]->setDefender(defender);
 		m_players[i]->setGatherer(gatherer);
 
@@ -243,7 +259,6 @@ void PlayState::createPlayerBodies()
 			bodyDef.type = b2_dynamicBody;
 			bodyDef.angle = 0;
 			bodyDef.linearDamping = 0.6f;
-			bodyDef.userData = player;
 			bodyDef.angularDamping = 1.f;
 			b2Body* body = m_world.CreateBody(&bodyDef);
 
@@ -255,6 +270,7 @@ void PlayState::createPlayerBodies()
 			fixtureDef.friction = 0.3f;
 			fixtureDef.shape = &shape;
 			fixtureDef.restitution = 0.6f;
+			fixtureDef.filter.categoryBits = CAT_DEFENDER;
 			body->CreateFixture(&fixtureDef);
 			player->getDefender()->setBody(body);
 		}
@@ -266,7 +282,6 @@ void PlayState::createPlayerBodies()
 			bodyDef.type = b2_dynamicBody;
 			bodyDef.angle = 0;
 			bodyDef.linearDamping = 0.6f;
-			bodyDef.userData = player;
 			b2Body* body = m_world.CreateBody(&bodyDef);
 
 			b2CircleShape shape;
@@ -277,6 +292,7 @@ void PlayState::createPlayerBodies()
 			fixtureDef.friction = 0.3f;
 			fixtureDef.shape = &shape;
 			fixtureDef.restitution = 0.6f;
+			fixtureDef.filter.categoryBits = CAT_GATHERER;
 			body->CreateFixture(&fixtureDef);
 			player->getGatherer()->setBody(body);
 		}
@@ -298,6 +314,7 @@ b2Body* PlayState::createWall(sf::Vector2f v1, sf::Vector2f v2)
 	// Convert the position
 	b2Vec2 position = PhysicsHelper::gameToPhysicsUnits(lineCenter);	
 	bodyDef.position.Set(position.x, position.y);
+	bodyDef.userData = this;
 	b2Body* body = m_world.CreateBody(&bodyDef);
 
 	// Create shape and fixture

@@ -1,24 +1,13 @@
 #pragma once
 
-#include <Box2D\Dynamics\b2Body.h>
+#include "Player.h"
 
-namespace sf
-{
-	class Sprite;
-}
+class b2Body;
 
-class Gatherer
+class Gatherer : public PlayerCharBase
 {
 public:
 	Gatherer();
 	~Gatherer();
-
-	sf::Sprite* getSprite();
-	void setBody(b2Body* body);
-	b2Body* getBody();
-
-private:
-	sf::Sprite* m_sprite;
-	b2Body* m_body;
 };
 

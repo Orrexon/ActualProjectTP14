@@ -9,8 +9,6 @@
 LevelLoader::LevelLoader()
 {
 }
-
-
 LevelLoader::~LevelLoader()
 {
 }
@@ -32,55 +30,8 @@ Level* LevelLoader::parseLevel(const std::string &filepath)
 		std::cout << "Failed to parse level " << m_levelDirectory + filepath << " with message: " << reader.getFormatedErrorMessages() << std::endl;
 		return nullptr;
 	}
+
 	Level* level = new Level();
-
-	bool parseError = false;
-	std::cout << "Parsing level..." << std::endl;
-	if (root.isObject())
-	{
-		if (root["background"].isNull() || !root["background"].isObject())
-		{
-			parseError = true;
-			std::cout << "ERROR: Background parsing" << std::endl;
-		}
-		else
-		{
-			if (root["background"]["path"].isNull() || !root["background"]["path"].isString())
-			{
-				parseError = true;
-				std::cout << "ERROR: Background path parsing" << std::endl;
-			}
-		}
-
-		if (root["players"].isNull() || !root["players"].isArray())
-		{
-			parseError = true;
-			std::cout << "ERROR: Players parsing" << std::endl;
-		}
-		else
-		{
-			if (root["players"].size() != 4)
-			{
-				parseError = true;
-				std::cout << "ERROR: Player count is not equal to four" << std::endl;
-			}
-			for (auto it = root["players"].begin(); it != root["players"].end(); ++it)
-			{
-				if ((*it)["defender_position_x"].isNull() || !(*it)["defender_position_x"].isInt()) { parseError = true; }
-				if ((*it)["defender_position_y"].isNull() || !(*it)["defender_position_y"].isInt()) { parseError = true; }
-				if ((*it)["gatherer_position_x"].isNull() || !(*it)["gatherer_position_x"].isInt()) { parseError = true; }
-				if ((*it)["gatherer_position_y"].isNull() || !(*it)["gatherer_position_y"].isInt()) { parseError = true; }
-			}
-		}
-	}
-	if (!parseError)
-	{
-		std::cout << "Errors were found during parsing level" << std::endl;
-		delete level;
-		level = nullptr;
-		return nullptr;
-	}
-
 	level->setBackgroundPath(root["background"]["path"].asString());
 	for (auto it = root["players"].begin(); it != root["players"].end(); ++it)
 	{
@@ -93,13 +44,6 @@ Level* LevelLoader::parseLevel(const std::string &filepath)
 	{
 		LevelObject* obj = createObject((*it)["path"].asString(), sf::Vector2f((*it)["x"].asDouble(), (*it)["y"].asDouble()));
 		
-		for (auto &triangle : obj->triangles)
-		{
-			std::cout << triangle[0].x << "," << triangle[0].y << std::endl;
-			std::cout << triangle[1].x << "," << triangle[1].y << std::endl;
-			std::cout << triangle[2].x << "," << triangle[2].y << std::endl;
-		}
-
 		level->addObject(obj);
 	}
 	return level;
