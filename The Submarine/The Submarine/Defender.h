@@ -1,19 +1,14 @@
 #pragma once
 
-namespace sf
-{
-	class Sprite;
-}
+#include "Player.h"
 
-class Defender
+class b2Body;
+class PlayerUD;
+
+class Defender : public PlayerCharBase
 {
 public:
 	Defender();
 	~Defender();
-
-	sf::Sprite* getSprite();
-
-private:
-	sf::Sprite* m_sprite;
 };
 

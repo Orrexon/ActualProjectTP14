@@ -10,9 +10,7 @@ Defender::~Defender()
 {
 	delete m_sprite;
 	m_sprite = nullptr;
-}
 
-sf::Sprite* Defender::getSprite()
-{
-	return m_sprite;
+	delete m_userData;
+	m_userData = nullptr;
 }

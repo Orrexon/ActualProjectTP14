@@ -1,0 +1,14 @@
+{
+   "circle" : {
+      "position" : {
+         "x" : 91,
+         "y" : 70
+      },
+      "radius" : 71
+   },
+   "image" : {
+      "path" : "..\\assets\\textures\\stone.png"
+   },
+   "points" : null,
+   "use_circle" : true
+}

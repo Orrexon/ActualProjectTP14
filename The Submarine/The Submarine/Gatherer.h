@@ -1,19 +1,13 @@
 #pragma once
 
-namespace sf
-{
-	class Sprite;
-}
+#include "Player.h"
 
-class Gatherer
+class b2Body;
+
+class Gatherer : public PlayerCharBase
 {
 public:
 	Gatherer();
 	~Gatherer();
-
-	sf::Sprite* getSprite();
-
-private:
-	sf::Sprite* m_sprite;
 };
 

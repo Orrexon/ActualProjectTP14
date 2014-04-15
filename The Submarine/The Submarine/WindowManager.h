@@ -19,6 +19,7 @@ struct OPENFILEINFO
 	
 	std::string caption;
 	int flags;
+	char* filters;
 };
 
 class WindowManager

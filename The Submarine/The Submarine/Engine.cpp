@@ -10,6 +10,8 @@
 #include "MenuState.h"
 #include "ResourceHolder.h"
 #include "WindowManager.h"
+#include "FileSystem.h"
+#include "Config.h"
 
 Engine::Engine()
 {
@@ -17,15 +19,18 @@ Engine::Engine()
 	m_windowManager = nullptr;
 	m_actionMap = nullptr;
 	m_resourceHolder = nullptr;
+	m_config = nullptr;
 }
 
 Engine::~Engine()
 {
 }
 
-
 bool Engine::init(std::string p_title)
 {
+	m_config = new Config();
+	m_config->setRoot(FileSystem::getCurrentDirectory());
+
 	m_gameStateManager = new GameStateManager();
 	m_gameStateManager->pushState(new MenuState());
 
@@ -42,6 +47,8 @@ bool Engine::init(std::string p_title)
 	m_gameStateManager->getStateAsset()->windowManager = m_windowManager;
 	m_gameStateManager->getStateAsset()->actionMap = m_actionMap;
 	m_gameStateManager->getStateAsset()->resourceHolder = m_resourceHolder;
+	m_gameStateManager->getStateAsset()->config = m_config;
+
 	return true;
 }
 
@@ -62,7 +69,7 @@ void Engine::loop()
 			m_windowManager->setFocus(true);
 		}
 
-		if (!m_gameStateManager->updateActiveStates(1.f))
+		if (!m_gameStateManager->updateActiveStates(0.016f))
 		{
 			m_running = false;
 			break;

@@ -9,6 +9,7 @@
 #include <thread>
 #include "System.hpp"
 #include "WindowManager.h"
+#include "FileSystem.h"
 
 WindowManager::WindowManager(std::string p_title)
 {
@@ -19,7 +20,6 @@ WindowManager::WindowManager(std::string p_title)
 	m_window->setVerticalSyncEnabled(true);
 	m_window->setKeyRepeatEnabled(false);
 }
-
 
 WindowManager::~WindowManager()
 {
@@ -41,11 +41,13 @@ sf::RenderWindow* WindowManager::getWindow()
 
 std::string WindowManager::browseFile(OPENFILEINFO &ofi)
 {
+	std::string currentDir = FileSystem::getCurrentDirectory();
 	auto filename = CreateZeroed<CHAR, 65536>();
 	auto open_filename = CreateZeroed<OPENFILENAMEA>();
 
 	open_filename.lStructSize = sizeof(OPENFILENAMEA);
-	open_filename.lpstrFilter = "All files(*.*)\0*.*\0";
+	//open_filename.lpstrFilter = "All files(*.*)\0*.*\0";
+	open_filename.lpstrFilter = ofi.filters;
 	open_filename.lpstrFile = filename.data();
 	open_filename.nMaxFile = filename.size();
 	open_filename.lpstrTitle = ofi.caption.c_str();
@@ -58,11 +60,13 @@ std::string WindowManager::browseFile(OPENFILEINFO &ofi)
 	{
 		return "";
 	}
+	SetCurrentDirectoryA(currentDir.c_str());
 	return std::string(filename.data());
 }
 
 std::string WindowManager::saveFile(OPENFILEINFO &ofi)
 {
+	std::string currentDir = FileSystem::getCurrentDirectory();
 	auto filename = CreateZeroed<CHAR, 255>();
 	auto open_filename = CreateZeroed<OPENFILENAMEA>();
 
@@ -80,6 +84,7 @@ std::string WindowManager::saveFile(OPENFILEINFO &ofi)
 	{
 		return "";
 	}
+	SetCurrentDirectoryA(currentDir.c_str());
 	return std::string(filename.data());
 }
 
