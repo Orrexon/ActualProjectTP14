@@ -299,15 +299,15 @@ int main(int argc, char *argv[])
 
 	//GUI
 	sf::Texture GUI = sf::Texture();
-	GUI.loadFromFile("../assets/png/gui.png", sf::IntRect(0, 0, 192, 1080));
+	GUI.loadFromFile("../assets/png/gui2.png", sf::IntRect(0, 0, 1920, 1080));
 	sf::Sprite s_GUI = sf::Sprite(GUI);
 
 	//font
 	sf::Font font; font.loadFromFile("../assets/BRLNSR.TTF");
-	sf::Vector2f redsText(40.f,318.f);
-	sf::Vector2f bluesText(40.f, 840.f);
-	sf::Vector2f yellowsText(40.f, 100.f);
-	sf::Vector2f purplesText(40.f, 590.f);
+	sf::Vector2f redsText(10.f,318.f);
+	sf::Vector2f bluesText(10.f, 840.f);
+	sf::Vector2f yellowsText(10.f, 100.f);
+	sf::Vector2f purplesText(10.f, 590.f);
 	std::vector<sf::Vector2f> textpositions;
 	textpositions.push_back(redsText);
 	textpositions.push_back(bluesText);
@@ -343,11 +343,15 @@ int main(int argc, char *argv[])
 	//the sprites
 	sf::Sprite s_red_g = sf::Sprite(red_g);
 	sf::Sprite s_red_d = sf::Sprite(red_d);
+	s_red_g.setScale(0.75f,0.75f);
+	s_red_d.setScale(0.75f, 0.75f);
 	g_sprites.push_back(s_red_g);
 	d_sprites.push_back(s_red_d);
 
 	sf::Sprite s_blue_g = sf::Sprite(blue_g);
 	sf::Sprite s_blue_d = sf::Sprite(blue_d);
+	s_blue_g.setScale(0.75f, 0.75f);
+	s_blue_d.setScale(0.75f, 0.75f);
 	g_sprites.push_back(s_blue_g);
 	d_sprites.push_back(s_blue_d);
 
@@ -374,7 +378,7 @@ int main(int argc, char *argv[])
 	createWall(world, sf::Vector2f(0, 0), sf::Vector2f(1920, 0));
 	createWall(world, sf::Vector2f(1920, 0), sf::Vector2f(1920, 1080));
 	createWall(world, sf::Vector2f(1920, 1080), sf::Vector2f(0, 1080));
-	createWall(world, sf::Vector2f(192, 1080), sf::Vector2f(192, 0));
+	createWall(world, sf::Vector2f(102, 1080), sf::Vector2f(102, 0));
 
 	sf::CircleShape innerCircle;
 	innerCircle.setRadius(200);
@@ -502,15 +506,15 @@ int main(int argc, char *argv[])
 	actionMap["test"] = thor::Action(sf::Keyboard::X, thor::Action::PressOnce);
 	actionMap["test2"] = thor::Action(sf::Mouse::Left, thor::Action::PressOnce);
 
-	actionMap["p1_up"] = thor::Action(sf::Keyboard::N/*W*/, thor::Action::Hold);
-	actionMap["p1_down"] = thor::Action(sf::Keyboard::Y/*S*/, thor::Action::Hold);
-	actionMap["p1_left"] = thor::Action(sf::Keyboard::U/*A*/, thor::Action::Hold);
-	actionMap["p1_right"] = thor::Action(sf::Keyboard::V/*D*/, thor::Action::Hold);
+	actionMap["p1_up"] = thor::Action(sf::Keyboard::/*N*/W, thor::Action::Hold);
+	actionMap["p1_down"] = thor::Action(sf::Keyboard::/*Y*/S, thor::Action::Hold);
+	actionMap["p1_left"] = thor::Action(sf::Keyboard::/*U*/A, thor::Action::Hold);
+	actionMap["p1_right"] = thor::Action(sf::Keyboard::/*V*/D, thor::Action::Hold);
 
-	actionMap["p2_up"] = thor::Action(sf::Keyboard::Down/*Up*/, thor::Action::Hold);
-	actionMap["p2_down"] = thor::Action(sf::Keyboard::Up/*Down*/, thor::Action::Hold);
-	actionMap["p2_left"] = thor::Action(sf::Keyboard::Right/*Left*/, thor::Action::Hold);
-	actionMap["p2_right"] = thor::Action(sf::Keyboard::Left/*Right*/, thor::Action::Hold);
+	actionMap["p2_up"] = thor::Action(sf::Keyboard::/*Down*/Up, thor::Action::Hold);
+	actionMap["p2_down"] = thor::Action(sf::Keyboard::/*Up*/Down, thor::Action::Hold);
+	actionMap["p2_left"] = thor::Action(sf::Keyboard::/*Right*/Left, thor::Action::Hold);
+	actionMap["p2_right"] = thor::Action(sf::Keyboard::/*Left*/Right, thor::Action::Hold);
 
 	actionMap["p3_up"] = thor::Action(sf::Keyboard::K, thor::Action::Hold);
 	actionMap["p3_down"] = thor::Action(sf::Keyboard::I, thor::Action::Hold);
@@ -567,21 +571,21 @@ int main(int argc, char *argv[])
 				if (actionMap.isActive("p1_up"))
 				{
 					//players[0]->m_gatherer->gatherer_body->SetLinearVelocity(b2Vec2(0.f, -8.f));
-					players[0]->m_gatherer->gatherer_body->ApplyForce(b2Vec2(0.f, gameToPhysicsUnits(-150.f)), players[0]->m_gatherer->gatherer_body->GetWorldCenter(), true);
+					players[0]->m_gatherer->gatherer_body->ApplyLinearImpulse(b2Vec2(0.f, gameToPhysicsUnits(-15.f)), players[0]->m_gatherer->gatherer_body->GetWorldCenter(), true);
 				}
 				if (actionMap.isActive("p1_down"))
 				{
-					players[0]->m_gatherer->gatherer_body->ApplyForce(b2Vec2(0.f, gameToPhysicsUnits(150.f)), players[0]->m_gatherer->gatherer_body->GetWorldCenter(), true);
+					players[0]->m_gatherer->gatherer_body->ApplyLinearImpulse(b2Vec2(0.f, gameToPhysicsUnits(15.f)), players[0]->m_gatherer->gatherer_body->GetWorldCenter(), true);
 					//players[0]->m_gatherer->gatherer_body->SetLinearVelocity(b2Vec2(players[0]->m_gatherer->gatherer_body->GetLinearVelocity().x, 8.f));
 				}
 				if (actionMap.isActive("p1_left"))
 				{
-					players[0]->m_gatherer->gatherer_body->ApplyForce(b2Vec2(gameToPhysicsUnits(-150.f), 0.f), players[0]->m_gatherer->gatherer_body->GetWorldCenter(), true);
+					players[0]->m_gatherer->gatherer_body->ApplyLinearImpulse(b2Vec2(gameToPhysicsUnits(-15.f), 0.f), players[0]->m_gatherer->gatherer_body->GetWorldCenter(), true);
 					//players[0]->m_gatherer->gatherer_body->SetLinearVelocity(b2Vec2(-8.f, players[0]->m_gatherer->gatherer_body->GetLinearVelocity().y));
 				}
 				if (actionMap.isActive("p1_right"))
 				{
-					players[0]->m_gatherer->gatherer_body->ApplyForce(b2Vec2(gameToPhysicsUnits(150.f), 0.f), players[0]->m_gatherer->gatherer_body->GetWorldCenter(), true);
+					players[0]->m_gatherer->gatherer_body->ApplyLinearImpulse(b2Vec2(gameToPhysicsUnits(15.f), 0.f), players[0]->m_gatherer->gatherer_body->GetWorldCenter(), true);
 					//players[0]->m_gatherer->gatherer_body->SetLinearVelocity(b2Vec2(8.f, players[0]->m_gatherer->gatherer_body->GetLinearVelocity().y));
 				}
 
