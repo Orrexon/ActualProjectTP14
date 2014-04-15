@@ -92,6 +92,7 @@
     <ClCompile Include="macosx_hidutilities.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="manymouse.c" />
+    <ClCompile Include="returnhome.cpp" />
     <ClCompile Include="Stalker.cpp" />
     <ClCompile Include="windows_wminput.c" />
     <ClCompile Include="x11_xinput2.c" />
@@ -103,6 +104,7 @@
     <ClInclude Include="FollowBall.h" />
     <ClInclude Include="manymouse.hpp" />
     <ClInclude Include="raw_input.h" />
+    <ClInclude Include="returnhome.h" />
     <ClInclude Include="Stalker.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
