@@ -41,7 +41,6 @@ enum
 	ID_PLAYER_4_GATHERER,
 	ID_PLAYER_4_DEFENDER,
 	ID_HOTSPOT_IMAGE,
-	ID_HOTSPOT_RADIUS,
 	ID_OBJECT_LOAD
 };
 
@@ -60,6 +59,7 @@ enum
 };
 
 const std::string DEFAULT_BACKGROUND = "../assets/textures/backgrounds/default.png";
+const std::string DEFAULT_HOTSPOT = "../assets/textures/hotspot.psd";
 const int DEFENDER_RADIUS = 30;
 const int GATHERER_RADIUS = 15;
 BOOL CALLBACK DialogProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lparam);
@@ -81,6 +81,7 @@ void LevelEditorState::entering()
 
 	m_placingHotspot = false;
 	m_placingPlayer = false;
+	m_placingObject = false;
 	m_exit = false;
 	m_scrollingScreen = false;
 
@@ -128,6 +129,12 @@ void LevelEditorState::entering()
 	m_backgroundTexture = new sf::Texture();
 	m_backgroundTexture->loadFromFile(DEFAULT_BACKGROUND);
 	m_backgroundSprite->setTexture(*m_backgroundTexture);
+
+	m_hotspotPath = DEFAULT_HOTSPOT;
+	m_hotspotSprite = new sf::Sprite();
+	m_hotspotSprite->setTexture(m_stateAsset->resourceHolder->getTexture(m_hotspotPath, false));
+	m_hotspotSprite->setOrigin(m_hotspotSprite->getGlobalBounds().width / 2.f, m_hotspotSprite->getGlobalBounds().height / 2.f);
+	m_hotspotSprite->setPosition(m_backgroundSprite->getGlobalBounds().width / 2.f, m_backgroundSprite->getGlobalBounds().height / 2.f);
 
 	m_hotSpotShape.setRadius(100);
 	m_hotSpotShape.setOrigin(m_hotSpotShape.getRadius(), m_hotSpotShape.getRadius());
@@ -178,7 +185,6 @@ void LevelEditorState::entering()
 	AppendMenuA(hPlayer4Sub, MF_STRING | MF_POPUP, ID_PLAYER_4_DEFENDER, "Defender");
 
 	AppendMenuA(hHotSpotDropDown, MF_STRING, ID_HOTSPOT_IMAGE, "Choose image");
-	AppendMenuA(hHotSpotDropDown, MF_STRING, ID_HOTSPOT_RADIUS, "Set radius");
 	
 	AppendMenuA(hFileDropDown, MF_STRING, ID_FILE_NEW, "New level");
 	AppendMenuA(hFileDropDown, MF_STRING, ID_FILE_OPEN, "Open level");
@@ -307,8 +313,27 @@ bool LevelEditorState::update(float dt)
 		m_levelView->setCenter(newCenter);
 	}
 
+
+
+	if (m_placingObject)
+	{
+		sf::Vector2f newPosition;
+		newPosition.x = current_mouse_pos.x - objects[m_placingObjectIndex].sprite->getGlobalBounds().width / 2.f;
+		newPosition.y = current_mouse_pos.y - objects[m_placingObjectIndex].sprite->getGlobalBounds().height / 2.f;
+		objects[m_placingObjectIndex].sprite->setPosition(newPosition);
+		if (getActionMap()->isActive("Place"))
+		{
+			m_placingObject = false;
+		}
+		else if (getActionMap()->isActive("Delete"))
+		{
+			m_placingObject = false;
+			objects.erase(objects.begin() + m_placingObjectIndex);
+			objects.shrink_to_fit();
+		}
+	}
 	// Changing hotspot position
-	if (m_placingHotspot)
+	else if (m_placingHotspot)
 	{
 		if (getActionMap()->isActive("Center"))
 		{
@@ -379,6 +404,34 @@ bool LevelEditorState::update(float dt)
 				clicked = true;
 				m_placingHotspot = true;
 			}
+
+			// Clicking on an object
+			if (!clicked)
+			{
+				sf::Vector2f point = current_mouse_pos;
+				for (int k = 0; k < objects.size(); k++) {
+					int nvert = objects[k].points.size() - 1;
+					bool inside = false;
+					for (unsigned int i = 0, j = nvert - 1; i < nvert; j = i++)
+					{
+						const sf::Vector2f &vert1 = objects[k].sprite->getPosition() + objects[k].points[i];
+						const sf::Vector2f &vert2 = objects[k].sprite->getPosition() + objects[k].points[j];
+
+						if (
+							((vert1.y > point.y) != (vert2.y > point.y)) &&
+							(point.x < ((vert2.x - vert1.x) * (point.y - vert1.y) / (vert2.y - vert1.y) + vert1.x)))
+						{
+							inside = !inside;
+						}
+					}
+					if (inside)
+					{
+						m_placingObject = true;
+						m_placingObjectIndex = k;
+						break;
+					}
+				}
+			}
 		}
 	}
 
@@ -398,6 +451,7 @@ void LevelEditorState::draw()
 {
 	m_stateAsset->windowManager->getWindow()->setView(*m_levelView);
 	m_stateAsset->windowManager->getWindow()->draw(*m_backgroundSprite);
+	m_stateAsset->windowManager->getWindow()->draw(*m_hotspotSprite);
 	m_stateAsset->windowManager->getWindow()->draw(m_hotSpotShape);
 	
 	for (auto &player: m_players)
@@ -421,6 +475,7 @@ void LevelEditorState::setupActions()
 	m_actionMap->operator[]("Center") = thor::Action(sf::Keyboard::LControl, thor::Action::Hold);
 	m_actionMap->operator[]("Set_Default") = thor::Action(sf::Keyboard::LControl, thor::Action::Hold) && thor::Action(sf::Keyboard::D, thor::Action::PressOnce);
 	m_actionMap->operator[]("Create_Object") = thor::Action(sf::Keyboard::LControl, thor::Action::Hold) && thor::Action(sf::Keyboard::B, thor::Action::PressOnce);
+	m_actionMap->operator[]("Delete") = thor::Action(sf::Keyboard::Delete, thor::Action::PressOnce) || thor::Action(sf::Keyboard::BackSpace, thor::Action::PressOnce);
 }
 
 void LevelEditorState::openFile()
@@ -479,6 +534,7 @@ void LevelEditorState::saveFile()
 		Json::Value backgroundNode;
 		Json::Value playersNode;
 		Json::Value objectsNode;
+		Json::Value hotspotNode;
 
 		for (int i = 0; i < 4; i++)
 		{
@@ -494,20 +550,25 @@ void LevelEditorState::saveFile()
 		for (int i = 0; i < objects.size(); i++)
 		{
 			Json::Value objectNode;
-			//std::string path = FileSystem::getRelativePath(FileSystem::getCurrentDirectory().c_str(), objects[i].object_path.c_str());
-			//objectNode["path"] = String::replace(path, "\\\\", "/");
 			objectNode["path"] = objects[i].object_path;
 			objectNode["x"] = static_cast<int>(objects[i].sprite->getPosition().x);
 			objectNode["y"] = static_cast<int>(objects[i].sprite->getPosition().y);
 			objectsNode.append(objectNode);
-			std::cout << objectsNode.size() << std::endl;
 		}
+
+		hotspotNode["radius"] = m_hotSpotShape.getRadius();
+		Json::Value hotSpotPositionNode;
+		hotSpotPositionNode["x"] = m_hotSpotShape.getPosition().x;
+		hotSpotPositionNode["y"] = m_hotSpotShape.getPosition().y;
+		hotspotNode["position"] = hotSpotPositionNode;
+		hotspotNode["image"] = m_hotspotPath;
 
 		backgroundNode["path"] = m_backgroundPath;
 
 		rootNode["objects"] = objectsNode;
 		rootNode["background"] = backgroundNode;
 		rootNode["players"] = playersNode;
+		rootNode["hotspot"] = hotspotNode;
 
 		Json::StyledWriter writer;
 		std::string output = writer.write(rootNode);
@@ -537,6 +598,7 @@ void LevelEditorState::changeBackground()
 {
 	OPENFILEINFO ofi;
 	ofi.caption = "Choose background image";
+	ofi.filters = "PNG files\0*.png";
 	std::string backgroundFile = m_stateAsset->windowManager->browseFile(ofi);
 	if (!backgroundFile.empty())
 	{
@@ -581,6 +643,16 @@ void LevelEditorState::setDefault()
 	gatherer_positions.push_back(sf::Vector2f(windowSize.x - 50, windowSize.y - 50));
 	gatherer_positions.push_back(sf::Vector2f(50, windowSize.y - 50));
 
+	
+	for (auto &player : m_players)
+	{
+		delete player->defender;
+		delete player->gatherer;
+		player->defender = nullptr;
+		player->gatherer = nullptr;
+	}
+	m_players.clear();
+
 	for (int i = 0; i < 4; i++)
 	{
 		PlayerStruct* player = new PlayerStruct();
@@ -598,6 +670,19 @@ void LevelEditorState::setDefault()
 
 		m_players.push_back(player);
 	}
+	
+	if (m_backgroundSprite != nullptr)
+	{
+		delete m_backgroundSprite;
+		m_backgroundSprite = nullptr;
+	}
+
+	if (m_backgroundTexture != nullptr)
+	{
+		delete m_backgroundTexture;
+		m_backgroundTexture = nullptr;
+	}
+
 
 	m_backgroundPath = DEFAULT_BACKGROUND;
 	m_backgroundSprite = new sf::Sprite();
@@ -625,6 +710,19 @@ void LevelEditorState::loadObject()
 	else
 	{
 		MessageBoxA(m_stateAsset->windowManager->getWindow()->getSystemHandle(), "Failed to load object file. A file was not selected.", "Failed to load object", 0);
+	}
+}
+
+void LevelEditorState::changeHotspotImage()
+{
+	OPENFILEINFO ofi;
+	ofi.caption = "Choose hotspot image";
+	ofi.filters = "PNG files\0*.png";
+	std::string hotspotFile = m_stateAsset->windowManager->browseFile(ofi);
+	if (!hotspotFile.empty())
+	{
+		m_hotspotPath = String::replace(FileSystem::getRelativePath(m_stateAsset->config->getRoot().c_str(), hotspotFile.c_str()), "\\\\", "/");
+		m_hotspotSprite->setTexture(m_stateAsset->resourceHolder->getTexture(false));
 	}
 }
 
@@ -664,6 +762,9 @@ void LevelEditorState::handleMenuSelected(thor::ActionContext<std::string> conte
 		break;
 	case ID_LOAD_OBJECT:
 		loadObject();
+		break;
+	case ID_HOTSPOT_IMAGE:
+		changeHotspotImage();
 		break;
 	default:
 		break;

@@ -32,6 +32,8 @@ Level* LevelLoader::parseLevel(const std::string &filepath)
 	}
 
 	Level* level = new Level();
+	level->setHotspotPosition(root["hotspot"]["position"]["x"].asDouble(), root["hotspot"]["position"]["y"].asDouble());
+	level->setHotspotRadius(root["hotspot"]["radius"].asDouble());
 	level->setBackgroundPath(root["background"]["path"].asString());
 	for (auto it = root["players"].begin(); it != root["players"].end(); ++it)
 	{

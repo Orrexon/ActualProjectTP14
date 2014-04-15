@@ -54,6 +54,7 @@ public:
 	void setHotspotRadius();
 	void setDefault();
 	void loadObject();
+	void changeHotspotImage();
 	void loadObjectRaw(std::string objectFile);
 	void handleMenuSelected(thor::ActionContext<std::string> context);
 
@@ -62,10 +63,12 @@ private:
 	thor::ActionMap<std::string>::CallbackSystem* m_system;
 
 	std::string m_backgroundPath;
+	std::string m_hotspotPath;
 
 	// SPRITE & TEXTURES
 	sf::Texture* m_backgroundTexture;
 
+	sf::Sprite* m_hotspotSprite;
 	sf::Sprite* m_backgroundSprite;
 	sf::CircleShape m_hotSpotShape;
 
@@ -83,8 +86,11 @@ private:
 	std::vector<PlayerStruct*> m_players;
 	bool m_placingPlayer;
 	bool m_placingHotspot;
+	bool m_placingObject;
+	
 	int m_placingPlayerIndex;
 	int m_placingPlayerChartype;
+	int m_placingObjectIndex;
 
 	HWND m_dialogEditHotspot;
 };

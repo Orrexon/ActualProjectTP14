@@ -304,10 +304,10 @@ int main(int argc, char *argv[])
 
 	//font
 	sf::Font font; font.loadFromFile("../assets/BRLNSR.TTF");
-	sf::Vector2f redsText(10.f,318.f);
-	sf::Vector2f bluesText(10.f, 840.f);
-	sf::Vector2f yellowsText(10.f, 100.f);
-	sf::Vector2f purplesText(10.f, 590.f);
+	sf::Vector2f redsText(10.f,580.f);
+	sf::Vector2f bluesText(10.f, 810.f);
+	sf::Vector2f yellowsText(10.f, 350.f);
+	sf::Vector2f purplesText(10.f, 100.f);
 	std::vector<sf::Vector2f> textpositions;
 	textpositions.push_back(redsText);
 	textpositions.push_back(bluesText);
@@ -390,15 +390,15 @@ int main(int argc, char *argv[])
 	std::vector<sf::Vector2f> defenderPositions;
 	std::vector<sf::Vector2f> gathererPositions;
 
-	defenderPositions.emplace_back(192 + 100, 250 - 150);
+	defenderPositions.emplace_back(102 + 100, 250 - 150);
 	defenderPositions.emplace_back(1820, 250 - 150);
 	defenderPositions.emplace_back(1820, 980);
-	defenderPositions.emplace_back(192 + 100, 980);
+	defenderPositions.emplace_back(102 + 100, 980);
 
-	gathererPositions.emplace_back(192 + 50, 175 - 150);
+	gathererPositions.emplace_back(102 + 50, 175 - 150);
 	gathererPositions.emplace_back(1870, 175 - 150);
 	gathererPositions.emplace_back(1870, 1030);
-	gathererPositions.emplace_back(192 + 50, 1030);
+	gathererPositions.emplace_back(102 + 50, 1030);
 
 	// create player
 	std::vector<Player*> players;

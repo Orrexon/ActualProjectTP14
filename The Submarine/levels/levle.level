@@ -2,32 +2,19 @@
    "background" : {
       "path" : "../assets/textures/backgrounds/default.png"
    },
-   "objects" : [
-      {
-         "path" : "../assets/objects/stone.objx",
-         "x" : 191,
-         "y" : 111
+   "hotspot" : {
+      "image" : "../assets/textures/hotspot.psd",
+      "position" : {
+         "x" : 960.0,
+         "y" : 540.0
       },
-      {
-         "path" : "../assets/objects/stone.objx",
-         "x" : 418,
-         "y" : 445
-      },
-      {
-         "path" : "../assets/objects/stone.objx",
-         "x" : 396,
-         "y" : 401
-      },
-      {
-         "path" : "../assets/objects/penis_stone.objx",
-         "x" : 321,
-         "y" : 538
-      }
-   ],
+      "radius" : 100.0
+   },
+   "objects" : null,
    "players" : [
       {
-         "defender_position_x" : 202.0,
-         "defender_position_y" : 174.50,
+         "defender_position_x" : 100.0,
+         "defender_position_y" : 100.0,
          "gatherer_position_x" : 50.0,
          "gatherer_position_y" : 50.0
       },

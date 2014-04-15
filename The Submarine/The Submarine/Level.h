@@ -37,17 +37,21 @@ public:
 	void setDefenderSpawn(int player_index, float x, float y);
 	void setGathererSpawn(int player_index, float x, float y);
 	void constructObjects(b2World* world, ResourceHolder* resourceHolder);
-	
-
+	void setHotspotPosition(float x, float y);
+	void setHotspotRadius(float radius);
 	sf::Vector2f getDefenderSpawn(int player_index);
 	sf::Vector2f getGathererSpawn(int player_index);
 	sf::Sprite* getBackground();
 	std::string getBackgroundPath();
+	sf::Vector2f getHotspotPosition();
+	float getHotspotRadius();
 private:
 	sf::Sprite* m_background;
 	std::string m_backgroundPath;
 	std::vector<sf::Vector2f> m_defenderSpawn;
 	std::vector<sf::Vector2f> m_gathererSpawn;
 	std::vector<LevelObject*> m_objects;
+	sf::Vector2f m_hotspotPosition;
+	float m_hotspotRadius;
 };
 

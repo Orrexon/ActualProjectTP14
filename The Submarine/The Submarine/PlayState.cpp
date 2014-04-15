@@ -185,11 +185,14 @@ void PlayState::initManyMouse()
 void PlayState::initPlayers()
 {
 	m_players.clear();
+	
+
 	for (std::size_t i = 0; i < m_mouseIndicies.size(); i++)
 	{
 		if (m_mouseIndicies[i] != -1)
 		{
 			m_players.push_back(new Player());
+			
 			continue;
 		}
 		m_players.push_back(nullptr);
@@ -219,7 +222,21 @@ void PlayState::loadNewLevel()
 	m_currentLevel->constructObjects(&m_world, m_stateAsset->resourceHolder);
 	m_currentLevel->getBackground()->setTexture(m_stateAsset->resourceHolder->getTexture(m_currentLevel->getBackgroundPath(), false));
 
+	m_hotSpot->setRadius(m_currentLevel->getHotspotRadius());
+	m_hotSpot->setPosition(m_currentLevel->getHotspotPosition());
+
 	// Create defenders and gatherers
+	std::vector<std::string> defender_textures;
+	defender_textures.push_back("blue_d.png");
+	defender_textures.push_back("red_d.png");
+	defender_textures.push_back("yellow_d.png");
+	defender_textures.push_back("purple_d.png");
+
+	std::vector<std::string> gatherer_textures;
+	gatherer_textures.push_back("blue_g.png");
+	gatherer_textures.push_back("red_g.png");
+	gatherer_textures.push_back("yellow_g.png");
+	gatherer_textures.push_back("purple_g.png");
 	for (std::size_t i = 0; i < m_players.size(); i++)
 	{
 		if (m_players[i] == nullptr) continue;
@@ -227,11 +244,11 @@ void PlayState::loadNewLevel()
 		Defender* defender = new Defender();
 		Gatherer* gatherer = new Gatherer();
 
-		m_stateAsset->resourceHolder->getTexture("defender.png").setSmooth(true);
-		m_stateAsset->resourceHolder->getTexture("gatherer.png").setSmooth(true);
+		m_stateAsset->resourceHolder->getTexture(defender_textures[i]).setSmooth(true);
+		m_stateAsset->resourceHolder->getTexture(gatherer_textures[i]).setSmooth(true);
 
-		defender->getSprite()->setTexture(m_stateAsset->resourceHolder->getTexture("defender.png"));
-		gatherer->getSprite()->setTexture(m_stateAsset->resourceHolder->getTexture("gatherer.png"));
+		defender->getSprite()->setTexture(m_stateAsset->resourceHolder->getTexture(defender_textures[i]));
+		gatherer->getSprite()->setTexture(m_stateAsset->resourceHolder->getTexture(gatherer_textures[i]));
 
 		defender->setSpawnPosition(m_currentLevel->getDefenderSpawn(i));
 		gatherer->setSpawnPosition(m_currentLevel->getGathererSpawn(i));

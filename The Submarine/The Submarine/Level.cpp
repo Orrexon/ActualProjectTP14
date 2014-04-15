@@ -37,6 +37,15 @@ std::string Level::getBackgroundPath()
 {
 	return m_backgroundPath;
 }
+void Level::setHotspotPosition(float x, float y)
+{
+	m_hotspotPosition.x = x;
+	m_hotspotPosition.y = y;
+}
+void Level::setHotspotRadius(float radius)
+{
+	m_hotspotRadius = radius;
+}
 
 void Level::setDefenderSpawn(int player_index, float x, float y)
 {
@@ -60,6 +69,14 @@ sf::Sprite* Level::getBackground()
 {
 	return m_background;
 }
+sf::Vector2f Level::getHotspotPosition()
+{
+	return m_hotspotPosition;
+}
+float Level::getHotspotRadius()
+{
+	return m_hotspotRadius;
+}
 void Level::constructObjects(b2World* world, ResourceHolder* resourceHolder)
 {
 	for (auto &object : m_objects)
@@ -68,11 +85,11 @@ void Level::constructObjects(b2World* world, ResourceHolder* resourceHolder)
 		object->sprite.setTexture(resourceHolder->getTexture(object->image_path, false));
 
 		// Set origin of sprite to center
-		object->sprite.setOrigin(object->sprite.getLocalBounds().width / 2.f, object->sprite.getLocalBounds().height / 2.f);
+		//object->sprite.setOrigin(object->sprite.getLocalBounds().width / 2.f, object->sprite.getLocalBounds().height / 2.f);
 		
 		// Define a static body with position 0, 0
 		b2BodyDef bodydef;
-		bodydef.type = b2_dynamicBody;
+		bodydef.type = b2_staticBody;
 		bodydef.position = PhysicsHelper::gameToPhysicsUnits(sf::Vector2f(0, 0));
 		bodydef.angle = 0;
 		object->body = world->CreateBody(&bodydef);
